@@ -44,8 +44,8 @@ build-rust-dependencies:
 
 .PHONY: build-phpspy-dependencies
 build-phpspy-dependencies:
-	cd third_party && git clone https://github.com/pyroscope-io/phpspy.git
-	cd phpspy && USE_ZEND=1 make
+	cd third_party && rm -fr phpspy && git clone https://github.com/AdrK/phpspy.git
+	cd third_party/phpspy && git checkout direct_from_mem && make
 
 .PHONY: build-third-party-dependencies
 build-third-party-dependencies: $(shell echo $(THIRD_PARTY_DEPENDENCIES))

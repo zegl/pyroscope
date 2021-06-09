@@ -79,6 +79,7 @@ func init() {
 	spy.RegisterSpy("phpspy", Start)
 }
 
+// TODO: Remove
 func trimSemicolon(b []byte) []byte {
 	if bytes.HasSuffix(b, []byte(";")) {
 		return b[:len(b)-1]
