@@ -1,9 +1,11 @@
-version: '3.8'
+version: '2.3'
 
 services:
   web:
     build: ./app
-    command: python manage.py runserver 0.0.0.0:8000
+    cap_add:
+      - SYS_PTRACE
+    command: /usr/bin/pyroscope exec --sample-rate=1 python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/usr/src/app/
     ports:
@@ -21,9 +23,11 @@ services:
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
   pyroscope:
-    image: pyroscope/pyroscope
-    environment:
-      - PYROSCOPE_LOG_LEVEL=debug
+    image: pyroscope_local
+    #    environment:
+    #      - PYROSCOPE_LOG_LEVEL=debug
+    cap_add:
+      - SYS_PTRACE
     ports:
       - '4040:4040'
     command:

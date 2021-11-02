@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
-import pyroscope
+#import pyroscope
 from pathlib import Path
 
 
@@ -138,10 +138,10 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-pyroscope.configure(
-	app_name       = "django-ride-sharing-app",
-	server_address = "http://pyroscope:4040",
-	# tags           = {
-    #     "region":   f'{os.getenv("REGION")}',
-	# }
-)
+#pyroscope.configure(
+#	app_name       = "django-ride-sharing-app",
+#	server_address = "http://pyroscope:4040",
+#	# tags           = {
+#    #     "region":   f'{os.getenv("REGION")}',
+#	# }
+#)

@@ -19,11 +19,10 @@ RUN wget https://github.com/libunwind/libunwind/releases/download/v1.3.1/libunwi
     ./configure --with-pic --disable-minidebuginfo --enable-ptrace --disable-tests --disable-documentation && make && make install
 
 COPY third_party/rustdeps /opt/rustdeps
-
 WORKDIR /opt/rustdeps
 
-RUN RUSTFLAGS="-L /lib -C target-feature=+crt-static" /root/.cargo/bin/cargo build --release --target $(uname -m)-unknown-linux-musl
-RUN mv /opt/rustdeps/target/$(uname -m)-unknown-linux-musl/release/librustdeps.a /opt/rustdeps/librustdeps.a
+RUN RUSTFLAGS="-L /lib -C target-feature=+crt-static -g" /root/.cargo/bin/cargo build --target $(uname -m)-unknown-linux-musl
+RUN mv /opt/rustdeps/target/$(uname -m)-unknown-linux-musl/debug/librustdeps.a /opt/rustdeps/librustdeps.a
 
 #        _
 #       | |
@@ -163,9 +162,17 @@ RUN mkdir -p \
         "/var/log/pyroscope" \
         "/etc/pyroscope"
 
-COPY scripts/packages/server.yml "/etc/pyroscope/server.yml"
-COPY --from=go-builder --chmod=0777 /opt/pyroscope/bin/pyroscope /usr/bin/pyroscope
+RUN apk add python3 py-pip gdb strace vim tree
+RUN python3 -m pip install httpserver
 
-USER pyroscope
+COPY scripts/packages/server.yml "/etc/pyroscope/server.yml"
+COPY --from=go-builder /opt/pyroscope/bin/pyroscope /usr/bin/pyroscope
+COPY --from=go-builder /opt/pyroscope github.com/pyroscope-io/pyroscope/
+ENV PYROSCOPE_LOG_LEVEL=debug
+RUN chmod 777 /usr/bin/pyroscope
+
+COPY --from=rust-builder /root/.cargo/ /root/.cargo/
+
+#USER pyroscope
 EXPOSE 4040/tcp
 ENTRYPOINT [ "/usr/bin/pyroscope" ]

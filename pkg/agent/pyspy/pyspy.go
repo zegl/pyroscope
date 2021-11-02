@@ -15,6 +15,7 @@ import (
 	"errors"
 	"time"
 	"unsafe"
+	"fmt"
 
 	"github.com/pyroscope-io/pyroscope/pkg/agent/spy"
 )
@@ -80,6 +81,7 @@ func (s *PySpy) Snapshot(cb func(*spy.Labels, []byte, uint64, error)) {
 	if r < 0 {
 		cb(nil, nil, 0, errors.New(string(s.errorBuf[:-r])))
 	} else {
+		fmt.Println("pyspy snapshot:", string(s.dataBuf))
 		arr := bytes.Split(s.dataBuf[:r], []byte("\n;"))
 		for _, s := range arr {
 			if len(s) > 0 {

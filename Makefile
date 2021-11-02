@@ -1,4 +1,4 @@
-GOBUILD=go build -trimpath
+GOBUILD=go build -trimpath -gcflags '-N -l'
 
 ARCH ?= $(shell arch)
 OS ?= $(shell uname)
@@ -107,7 +107,7 @@ build-panel:
 .PHONY: build-rust-dependencies
 build-rust-dependencies:
 ifeq ("$(OS)", "Linux")
-	cd third_party/rustdeps && RUSTFLAGS="-C relocation-model=pic -C target-feature=+crt-static" cargo build --release --target $(RUST_TARGET) || $(MAKE) print-deps-error-message
+	cd third_party/rustdeps && RUSTFLAGS="-C relocation-model=pic -C target-feature=+crt-static" cargo build --debug --target $(RUST_TARGET) || $(MAKE) print-deps-error-message
 else
 	cd third_party/rustdeps && RUSTFLAGS="-C target-feature=+crt-static" cargo build --release || $(MAKE) print-deps-error-message
 endif

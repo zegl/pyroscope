@@ -25,9 +25,12 @@ RUN pip install -r requirements.txt
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
+RUN apt install -y rust-gdb strace vim tree
 
 # copy project
 COPY . .
-
+COPY --from=pyroscope_local /usr/bin/pyroscope /usr/bin/pyroscope
+COPY --from=pyroscope_local /var/lib/pyroscope/github.com/pyroscope-io/pyroscope/ github.com/pyroscope-io/pyroscope/
+COPY --from=pyroscope_local /root/.cargo/ /root/.cargo/
 # run entrypoint.sh
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
