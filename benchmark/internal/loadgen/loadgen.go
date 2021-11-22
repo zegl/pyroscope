@@ -99,8 +99,19 @@ func Cli(cfg *config.LoadGen) error {
 	if cfg.CapacityBenchmark {
 		minClients := cfg.Clients
 		//logrus.Infof("minClients: %d", minClients)
-		for l.Run(cfg) != CapacityExceeded {
+		for {
 			cfg.Clients *= 2
+			capacityExceeded := 0
+			for i := 0; i < cfg.Trials; i++ {
+				if err := l.Run(cfg); err == CapacityExceeded {
+					capacityExceeded++
+				} else if err != nil {
+					return err
+				}
+			}
+			if capacityExceeded*2 > cfg.Trials {
+				break
+			}
 		}
 		maxClients := cfg.Clients
 		//logrus.Infof("maxClients: %d", maxClients)
@@ -111,7 +122,7 @@ func Cli(cfg *config.LoadGen) error {
 				if err := l.Run(cfg); err == CapacityExceeded {
 					capacityExceeded++
 				} else if err != nil {
-					panic(err)
+					panic(err) // wish we could do a Ruby-style return here
 				}
 			}
 			return capacityExceeded*2 > cfg.Trials
@@ -140,10 +151,10 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 	appNameBuf := make([]byte, 25)
 
 	// Memory-inefficient but obviously correct histogram.
-	var latencyHistogram []time.Duration
+	var latencyHistogram []uint32
 	var errorCounter *uint64
 	if cfg.CapacityBenchmark {
-		latencyHistogram = make([]time.Duration, cfg.Apps*cfg.Clients*cfg.Requests)
+		latencyHistogram = make([]uint32, 7501) // one more than the latency (in milliseconds) we care about
 		errorCounter = new(uint64)
 	}
 
@@ -152,8 +163,7 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 		l.Rand.Read(appNameBuf)
 		appName := hex.EncodeToString(appNameBuf)
 		for j := 0; j < l.Config.Clients; j++ {
-			offset := i*cfg.Clients*cfg.Requests + j*cfg.Requests
-			go l.startClientThread(appName, &wg, fixtures[i], latencyHistogram[offset:offset+cfg.Requests], errorCounter)
+			go l.startClientThread(appName, &wg, fixtures[i], latencyHistogram, errorCounter)
 		}
 	}
 	wg.Wait()
@@ -163,15 +173,26 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 	// Latency quantiles and error rate. If latency's too high or error rate
 	// is non-zero, we've exceeded this instance's capacity.
 	if cfg.CapacityBenchmark {
-		sort.Slice(latencyHistogram, func(i, j int) bool {
-			return latencyHistogram[i] < latencyHistogram[j]
-		})
-		logrus.Infof("50th percentile latency: %v", latencyHistogram[len(latencyHistogram)*50/100])
-		logrus.Infof("90th percentile latency: %v", latencyHistogram[len(latencyHistogram)*90/100])
-		logrus.Infof("99th percentile latency: %v", latencyHistogram[len(latencyHistogram)*99/100])
+		var p50, p90, p99 time.Duration
+		requests, total := uint32(0), uint32(cfg.Apps*cfg.Clients*cfg.Requests)
+		for milliseconds, samples := range latencyHistogram {
+			requests += samples
+			if requests >= total*99/100 {
+				p99 = time.Duration(milliseconds) * time.Millisecond
+				break
+			} else if requests >= total*90/100 {
+				p90 = time.Duration(milliseconds) * time.Millisecond
+			} else if requests >= total*50/100 {
+				p50 = time.Duration(milliseconds) * time.Millisecond
+			}
+		}
+
+		logrus.Infof("50th percentile latency: %v", p50)
+		logrus.Infof("90th percentile latency: %v", p90)
+		logrus.Infof("99th percentile latency: %v", p99)
 		logrus.Infof("errors: %v", atomic.LoadUint64(errorCounter))
 
-		if latencyHistogram[len(latencyHistogram)*99/100] > 7500*time.Millisecond { // 7.5 seconds but keep the math in integers
+		if p99 > 7500*time.Millisecond { // 7.5 seconds but keep the math in integers
 			return CapacityExceeded
 		}
 		if atomic.LoadUint64(errorCounter) > 0 {
@@ -198,7 +219,7 @@ func (l *LoadGen) generateFixtures() Fixtures {
 	return f
 }
 
-func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtures []*transporttrie.Trie, latencyHistogram []time.Duration, errorCounter *uint64) {
+func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtures []*transporttrie.Trie, latencyHistogram []uint32, errorCounter *uint64) {
 	rc := remote.RemoteConfig{
 		UpstreamThreads:        1,
 		UpstreamAddress:        l.Config.ServerAddress,
@@ -234,7 +255,11 @@ func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtu
 			Trie:            t,
 		})
 		if latencyHistogram != nil {
-			latencyHistogram[i] = time.Since(t0)
+			milliseconds := uint32(time.Since(t0).Milliseconds())
+			if milliseconds >= uint32(len(latencyHistogram)) {
+				milliseconds = uint32(len(latencyHistogram) - 1)
+			}
+			atomic.AddUint32(&latencyHistogram[milliseconds], 1)
 		}
 		if err != nil {
 			l.uploadErrors.Add(1)
