@@ -2,10 +2,13 @@ package loadgen
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
+	"sort"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -20,6 +23,8 @@ import (
 
 // how many retries to check the pyroscope server is up
 const MaxReadinessRetries = 10
+
+var CapacityExceeded = errors.New("capacity exceeded")
 
 type Fixtures [][]*transporttrie.Trie
 
@@ -91,6 +96,29 @@ func Cli(cfg *config.LoadGen) error {
 		func() float64 { return float64(cfg.Apps * cfg.Requests * cfg.Clients) },
 	)
 
+	if cfg.CapacityBenchmark {
+		minClients := cfg.Clients
+		//logrus.Infof("minClients: %d", minClients)
+		for l.Run(cfg) != CapacityExceeded {
+			cfg.Clients *= 2
+		}
+		maxClients := cfg.Clients
+		//logrus.Infof("maxClients: %d", maxClients)
+		logrus.Infof("client capacity: %d", sort.Search(maxClients-minClients, func(n int) bool {
+			cfg.Clients = minClients + n
+			capacityExceeded := 0
+			for i := 0; i < cfg.Trials; i++ {
+				if err := l.Run(cfg); err == CapacityExceeded {
+					capacityExceeded++
+				} else if err != nil {
+					panic(err)
+				}
+			}
+			return capacityExceeded*2 > cfg.Trials
+		}))
+		return nil
+	}
+
 	return l.Run(cfg)
 }
 
@@ -111,17 +139,46 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 	wg.Add(l.Config.Apps * l.Config.Clients)
 	appNameBuf := make([]byte, 25)
 
+	// Memory-inefficient but obviously correct histogram.
+	var latencyHistogram []time.Duration
+	var errorCounter *uint64
+	if cfg.CapacityBenchmark {
+		latencyHistogram = make([]time.Duration, cfg.Apps*cfg.Clients*cfg.Requests)
+		errorCounter = new(uint64)
+	}
+
 	for i := 0; i < l.Config.Apps; i++ {
 		// generate a random app name
 		l.Rand.Read(appNameBuf)
 		appName := hex.EncodeToString(appNameBuf)
 		for j := 0; j < l.Config.Clients; j++ {
-			go l.startClientThread(appName, &wg, fixtures[i])
+			offset := i*cfg.Clients*cfg.Requests + j*cfg.Requests
+			go l.startClientThread(appName, &wg, fixtures[i], latencyHistogram[offset:offset+cfg.Requests], errorCounter)
 		}
 	}
 	wg.Wait()
 
 	logrus.Debug("done sending requests")
+
+	// Latency quantiles and error rate. If latency's too high or error rate
+	// is non-zero, we've exceeded this instance's capacity.
+	if cfg.CapacityBenchmark {
+		sort.Slice(latencyHistogram, func(i, j int) bool {
+			return latencyHistogram[i] < latencyHistogram[j]
+		})
+		logrus.Infof("50th percentile latency: %v", latencyHistogram[len(latencyHistogram)*50/100])
+		logrus.Infof("90th percentile latency: %v", latencyHistogram[len(latencyHistogram)*90/100])
+		logrus.Infof("99th percentile latency: %v", latencyHistogram[len(latencyHistogram)*99/100])
+		logrus.Infof("errors: %v", atomic.LoadUint64(errorCounter))
+
+		if latencyHistogram[len(latencyHistogram)*99/100] > 7500*time.Millisecond { // 7.5 seconds but keep the math in integers
+			return CapacityExceeded
+		}
+		if atomic.LoadUint64(errorCounter) > 0 {
+			return CapacityExceeded
+		}
+	}
+
 	return nil
 }
 
@@ -141,7 +198,7 @@ func (l *LoadGen) generateFixtures() Fixtures {
 	return f
 }
 
-func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtures []*transporttrie.Trie) {
+func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtures []*transporttrie.Trie, latencyHistogram []time.Duration, errorCounter *uint64) {
 	rc := remote.RemoteConfig{
 		UpstreamThreads:        1,
 		UpstreamAddress:        l.Config.ServerAddress,
@@ -165,6 +222,7 @@ func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtu
 
 		st = st.Add(10 * time.Second)
 		et := st.Add(10 * time.Second)
+		t0 := time.Now()
 		err := r.UploadSync(&upstream.UploadJob{
 			Name:            appName + "{}",
 			StartTime:       st,
@@ -175,8 +233,14 @@ func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtu
 			AggregationType: "sum",
 			Trie:            t,
 		})
+		if latencyHistogram != nil {
+			latencyHistogram[i] = time.Since(t0)
+		}
 		if err != nil {
 			l.uploadErrors.Add(1)
+			if errorCounter != nil {
+				atomic.AddUint64(errorCounter, 1)
+			}
 			time.Sleep(time.Second)
 		} else {
 			l.successfulUploads.Add(1)
