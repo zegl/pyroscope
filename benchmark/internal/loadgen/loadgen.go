@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"runtime"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -125,6 +126,7 @@ func Cli(cfg *config.LoadGen) error {
 }
 
 func (l *LoadGen) Run(cfg *config.LoadGen) error {
+	runtime.GC() // so fresh and so clean
 	logrus.Info("checking server is available...")
 	err := waitUntilEndpointReady(cfg.ServerAddress)
 	if err != nil {
