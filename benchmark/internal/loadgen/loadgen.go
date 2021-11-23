@@ -4,9 +4,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"runtime"
+	"runtime/pprof"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -108,6 +111,18 @@ func Cli(cfg *config.LoadGen) error {
 				return err
 			}
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		memProfile, err := os.Create("mem.prof")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := pprof.WriteHeapProfile(memProfile); err != nil {
+			log.Fatal(err)
+		}
+		memProfile.Close()
+		//////////////////////////////////////////////////////////////////////////
+
 		maxClients := cfg.Clients
 		//logrus.Infof("maxClients: %d", maxClients)
 		logrus.Infof("client capacity: %d", sort.Search(maxClients-minClients, func(n int) bool {
