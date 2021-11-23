@@ -21,7 +21,6 @@ type LoadGen struct {
 	Apps                int    `def:"20" desc:"how many pyroscope apps to emulate"`
 	Clients             int    `def:"20" desc:"how many pyroscope clients to emulate"`
 	CapacityBenchmark   bool   `def:"false" desc:"search for the maximum number of clients this server can handle"`
-	Trials              int    `def:"10" desc:"in capacity benchmark mode, the number of trials to run for each number of clients"`
 	Requests            int    `def:"10000" desc:"how many requests each clients should make"`
 
 	PushgatewayAddress string `def:"" desc:"if enabled, pushes data to prometheus pushgateway (assumes it's unauthenticated)" mapstructure:"pushgateway-address"`

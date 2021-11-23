@@ -101,31 +101,22 @@ func Cli(cfg *config.LoadGen) error {
 		//logrus.Infof("minClients: %d", minClients)
 		for {
 			cfg.Clients *= 2
-			capacityExceeded := 0
-			for i := 0; i < cfg.Trials; i++ {
-				if err := l.Run(cfg); err == CapacityExceeded {
-					capacityExceeded++
-				} else if err != nil {
-					return err
-				}
-			}
-			if capacityExceeded*2 > cfg.Trials {
+			if err := l.Run(cfg); err == CapacityExceeded {
 				break
+			} else if err != nil {
+				return err
 			}
 		}
 		maxClients := cfg.Clients
 		//logrus.Infof("maxClients: %d", maxClients)
 		logrus.Infof("client capacity: %d", sort.Search(maxClients-minClients, func(n int) bool {
 			cfg.Clients = minClients + n
-			capacityExceeded := 0
-			for i := 0; i < cfg.Trials; i++ {
-				if err := l.Run(cfg); err == CapacityExceeded {
-					capacityExceeded++
-				} else if err != nil {
-					panic(err) // wish we could do a Ruby-style return here
-				}
+			if err := l.Run(cfg); err == CapacityExceeded {
+				return true
+			} else if err != nil {
+				panic(err) // wish we could do a Ruby-style return here
 			}
-			return capacityExceeded*2 > cfg.Trials
+			return false
 		}))
 		return nil
 	}
@@ -175,6 +166,7 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 	if cfg.CapacityBenchmark {
 		var p50, p90, p99 time.Duration
 		requests, total := uint32(0), uint32(cfg.Apps*cfg.Clients*cfg.Requests)
+
 		for milliseconds, samples := range latencyHistogram {
 			requests += samples
 			if requests >= total*99/100 {
@@ -186,6 +178,7 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 				p50 = time.Duration(milliseconds) * time.Millisecond
 			}
 		}
+		errorRate := float64(atomic.LoadUint64(errorCounter)) / float64(total)
 
 		logrus.Infof("50th percentile latency: %v", p50)
 		logrus.Infof("90th percentile latency: %v", p90)
@@ -195,7 +188,7 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 		if p99 > 7500*time.Millisecond { // 7.5 seconds but keep the math in integers
 			return CapacityExceeded
 		}
-		if atomic.LoadUint64(errorCounter) > 0 {
+		if errorRate > 0.001 { // 0.1% error rate is 99.9% available
 			return CapacityExceeded
 		}
 	}
