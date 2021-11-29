@@ -104,12 +104,12 @@ func Cli(cfg *config.LoadGen) error {
 		minClients := cfg.Clients
 		//logrus.Infof("minClients: %d", minClients)
 		for {
-			cfg.Clients *= 2
 			if err := l.Run(cfg); err == CapacityExceeded {
 				break
 			} else if err != nil {
 				return err
 			}
+			cfg.Clients *= 2
 		}
 
 		//////////////////////////////////////////////////////////////////////////
