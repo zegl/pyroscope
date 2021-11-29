@@ -101,8 +101,6 @@ func Cli(cfg *config.LoadGen) error {
 	)
 
 	if cfg.CapacityBenchmark {
-		minClients := cfg.Clients
-		//logrus.Infof("minClients: %d", minClients)
 		for {
 			if err := l.Run(cfg); err == CapacityExceeded {
 				break
@@ -123,17 +121,24 @@ func Cli(cfg *config.LoadGen) error {
 		memProfile.Close()
 		//////////////////////////////////////////////////////////////////////////
 
+		minClients := cfg.Clients / 2
+		//logrus.Infof("minClients: %d", minClients)
 		maxClients := cfg.Clients
 		//logrus.Infof("maxClients: %d", maxClients)
-		logrus.Infof("client capacity: %d", sort.Search(maxClients-minClients, func(n int) bool {
-			cfg.Clients = minClients + n
-			if err := l.Run(cfg); err == CapacityExceeded {
-				return true
-			} else if err != nil {
-				panic(err) // wish we could do a Ruby-style return here
-			}
-			return false
-		}))
+		logrus.Infof(
+			"client capacity: %d",
+			minClients-
+				10+ // substract 10 to get the highest good result, not the lowest bad result
+				10*sort.Search((maxClients-minClients)/10, func(n int) bool {
+					cfg.Clients = minClients + 10*n
+					if err := l.Run(cfg); err == CapacityExceeded {
+						return true
+					} else if err != nil {
+						panic(err) // wish we could do a Ruby-style return here
+					}
+					return false
+				}),
+		)
 		return nil
 	}
 
