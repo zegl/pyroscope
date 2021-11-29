@@ -4,12 +4,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"runtime"
-	"runtime/pprof"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -111,14 +108,16 @@ func Cli(cfg *config.LoadGen) error {
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		memProfile, err := os.Create("mem.prof")
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := pprof.WriteHeapProfile(memProfile); err != nil {
-			log.Fatal(err)
-		}
-		memProfile.Close()
+		/*
+			memProfile, err := os.Create("mem.prof")
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err := pprof.WriteHeapProfile(memProfile); err != nil {
+				log.Fatal(err)
+			}
+			memProfile.Close()
+		*/
 		//////////////////////////////////////////////////////////////////////////
 
 		minClients := cfg.Clients / 2
