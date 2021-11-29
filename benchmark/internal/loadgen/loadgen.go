@@ -292,8 +292,9 @@ func (l *LoadGen) startClientThread(appName string, wg *sync.WaitGroup, appFixtu
 			l.uploadErrors.Add(1)
 			if errorCounter != nil {
 				atomic.AddUint64(errorCounter, 1)
+			} else {
+				time.Sleep(time.Second) // lessens the load and corrupts the result
 			}
-			time.Sleep(time.Second)
 		} else {
 			l.successfulUploads.Add(1)
 		}
