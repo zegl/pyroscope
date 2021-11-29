@@ -167,7 +167,12 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 	var latencyHistogram []uint32
 	var errorCounter *uint64
 	if cfg.CapacityBenchmark {
-		latencyHistogram = make([]uint32, 7501) // one more than the latency (in milliseconds) we care about
+		latencyHistogram = make(
+			[]uint32,
+			7500+ // number of milliseconds we care about per use-case
+				1+ // an extra to capture samples that exceed the threshold
+				1, // and one more for slice length being one more than the highest index
+		)
 		errorCounter = new(uint64)
 	}
 
