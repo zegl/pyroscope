@@ -216,12 +216,13 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 		logrus.Infof("50th percentile latency: %v", p50)
 		logrus.Infof("90th percentile latency: %v", p90)
 		logrus.Infof("99th percentile latency: %v", p99)
-		logrus.Infof("errors: %v, error rate: %v, availability: %v", atomic.LoadUint64(errorCounter), errorRate, 1.0-errorRate)
+		logrus.Infof("errors: %d, error rate: %.2f%%, availability: %.2f%%", atomic.LoadUint64(errorCounter), 100.0*errorRate, 100.0*(1.0-errorRate))
 
 		if p99 > 7500*time.Millisecond { // 7.5 seconds but keep the math in integers
 			return CapacityExceeded
 		}
 		if errorRate > 0.001 { // 0.1% error rate is 99.9% available
+			//if errorRate > 0.01 { // 1% error rate is 99% available
 			return CapacityExceeded
 		}
 	}
