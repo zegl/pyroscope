@@ -205,6 +205,12 @@ func (l *LoadGen) Run(cfg *config.LoadGen) error {
 				p50 = time.Duration(milliseconds) * time.Millisecond
 			}
 		}
+		if p90 == 0 {
+			p90 = p99
+		}
+		if p50 == 0 {
+			p50 = p90
+		}
 		errorRate := float64(atomic.LoadUint64(errorCounter)) / float64(total)
 
 		logrus.Infof("50th percentile latency: %v", p50)
