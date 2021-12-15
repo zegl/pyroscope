@@ -50,7 +50,8 @@ export function buildDiffRenderURL(
 
   const urlStr = buildRenderURL(state, from, until);
   const url = new URL(urlStr, location.origin);
-  url.pathname = '/render-diff'; // TODO: merge with buildRenderURL
+
+  url.pathname = (window.baseURL ? window.baseURL + '/' : '') + 'render-diff'; // TODO: merge with buildRenderURL
 
   const params = url.searchParams;
   params.set('leftFrom', leftFrom);
@@ -58,5 +59,6 @@ export function buildDiffRenderURL(
   params.set('rightFrom', rightFrom);
   params.set('rightUntil', rightUntil);
 
+  console.log(url.toString());
   return url.toString();
 }

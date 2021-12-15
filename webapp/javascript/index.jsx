@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 
 import { Provider } from 'react-redux';
-import { Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Router, Switch, Route } from 'react-router-dom';
 import FPSStats from 'react-fps-stats';
 import Notifications from '@ui/Notifications';
 import store from './redux/store';
@@ -27,10 +27,11 @@ try {
 
 // TODO fetch this from localstorage?
 const enableAdhoc = true;
+const baseURL = window.baseURL || null;
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history}>
+    <BrowserRouter history={history} basename={baseURL}>
       <Notifications />
       <ServerNotifications />
       <div className="app">
@@ -52,7 +53,7 @@ ReactDOM.render(
           )}
         </Switch>
       </div>
-    </Router>
+    </BrowserRouter>
     {showFps ? <FPSStats left="auto" top="auto" bottom={2} right={2} /> : ''}
   </Provider>,
   document.getElementById('root')

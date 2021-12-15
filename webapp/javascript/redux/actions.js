@@ -288,7 +288,7 @@ export function fetchTags(query) {
     fetchTagController = new AbortController();
 
     dispatch(requestTags());
-    return fetch(`/labels?query=${encodeURIComponent(query)}`)
+    return fetch(`labels?query=${encodeURIComponent(query)}`)
       .then((response) => response.json())
       .then((data) => {
         dispatch(receiveTags(data));
@@ -320,9 +320,9 @@ export function fetchTagValues(query, tag) {
 
     dispatch(requestTagValues(tag));
     return fetch(
-      `/label-values?label=${encodeURIComponent(
-        tag
-      )}&query=${encodeURIComponent(query)}`
+      `label-values?label=${encodeURIComponent(tag)}&query=${encodeURIComponent(
+        query
+      )}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -354,7 +354,7 @@ export function fetchNames() {
     currentNamesController = new AbortController();
 
     dispatch(requestNames());
-    return fetch('/label-values?label=__name__', {
+    return fetch('label-values?label=__name__', {
       signal: currentNamesController.signal,
     })
       .then((response) => response.json())
