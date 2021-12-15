@@ -8,8 +8,8 @@
     {{- if .BaseURL }}
     <base href="{{ .BaseURL }}" />
     {{- end }}
-    <link rel="stylesheet" href="/assets/styles.<%= webpack.hash %>.css" />
-    <link rel="icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" href="assets/styles.<%= webpack.hash %>.css" />
+    <link rel="icon" href="assets/images/favicon.ico" />
   </head>
 
   <body class="login-page">
@@ -20,7 +20,7 @@
       <p class="login-to-continue">Check logs for more details</p>
 
       <div class="sign-in-buttons">
-        <a href="/login" class="sign-in-button sign-in-button-go-back">
+        <a href="login" class="sign-in-button sign-in-button-go-back">
           <svg
             aria-hidden="true"
             focusable="false"
