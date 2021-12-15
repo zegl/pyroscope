@@ -156,7 +156,7 @@ module.exports = {
         // However, we still need to prefix the public URL with /assets/static/img
         options: {
           outputPath: 'static/img',
-          publicPath: '/assets/static/img',
+          publicPath: 'assets/static/img',
           name: '[name].[hash:8].[ext]',
         },
       },
