@@ -8,8 +8,8 @@
     {{- if .BaseURL }}
     <base href="{{ .BaseURL }}" />
     {{- end }}
-    <link rel="stylesheet" href="/assets/styles.<%= webpack.hash %>.css" />
-    <link rel="icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" href="assets/styles.<%= webpack.hash %>.css" />
+    <link rel="icon" href="assets/images/favicon.ico" />
   </head>
 
   <body class="login-page">
@@ -22,7 +22,7 @@
 
     <script>
       var has_tls = location.protocol === 'https:';
-      window.location.href = '{{.RedirectURL}}&tls=' + has_tls;
+      window.location.href = '{{.RedirectPath}}&tls=' + has_tls;
     </script>
   </body>
 </html>
