@@ -2158,6 +2158,11 @@
   resolved "https://registry.yarnpkg.com/@mdx-js/util/-/util-1.6.22.tgz#219dfd89ae5b97a8801f015323ffa4b62f45718b"
   integrity sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==
 
+"@mobily/ts-belt@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@mobily/ts-belt/-/ts-belt-3.5.0.tgz#22d6de02594b6a0b796cae99080fedfa5cda301f"
+  integrity sha512-24abnUCvvO3+96kTTDkNmJTzrNsAKkAfIeORKPabC6qB5W++OZLLVngD87dPcnereO3cHYxTe/JBHV92rJgJjQ==
+
 "@mochajs/json-file-reporter@^1.2.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@mochajs/json-file-reporter/-/json-file-reporter-1.3.0.tgz#63a53bcda93d75f5c5c74af60e45da063931370b"

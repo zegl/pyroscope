@@ -1,4 +1,4 @@
-import { Option } from '@utils/fp';
+import { Option, pipe } from '@utils/fp';
 import React from 'react';
 import { DeepReadonly } from 'ts-essentials';
 import styles from './Highlight.module.css';
@@ -6,11 +6,11 @@ import styles from './Highlight.module.css';
 export interface HighlightProps {
   // probably the same as the bar height
   barHeight: number;
-  zoom: Option<DeepReadonly<{ i: number; j: number }>>;
+  zoom: Option.Option<DeepReadonly<{ i: number; j: number }>>;
   xyToHighlightData: (
     x: number,
     y: number
-  ) => Option<{
+  ) => Option.Option<{
     left: number;
     top: number;
     width: number;
@@ -38,19 +38,23 @@ export default function Highlight(props: HighlightProps) {
   const onMouseMove = (e: MouseEvent) => {
     const opt = xyToHighlightData(e.offsetX, e.offsetY);
 
-    if (opt.isSome()) {
-      const data = opt.get();
-
-      setStyle({
-        visibility: 'visible',
-        height: `${barHeight}px`,
-        ...data,
-      });
-    } else {
-      // it doesn't map to a valid xy
-      // so it means we are hovering out
-      onMouseOut();
-    }
+    pipe(
+      opt,
+      Option.match(
+        (data) => {
+          setStyle({
+            visibility: 'visible',
+            height: `${barHeight}px`,
+            ...data,
+          });
+        },
+        () => {
+          // it doesn't map to a valid xy
+          // so it means we are hovering out
+          onMouseOut();
+        }
+      )
+    );
   };
 
   const onMouseOut = () => {

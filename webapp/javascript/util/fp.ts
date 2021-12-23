@@ -1,3 +1,3 @@
-import { Option } from 'prelude-ts';
+import { A, O, N, pipe } from '@mobily/ts-belt';
 
-export { Option };
+export { O as Option, pipe };

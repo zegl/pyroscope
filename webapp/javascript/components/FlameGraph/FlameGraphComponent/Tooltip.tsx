@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import {
   getFormatter,
@@ -6,18 +7,18 @@ import {
   formatPercent,
   ratioToPercent,
 } from '@utils/format';
-import { Option } from '@utils/fp';
+import { Option, pipe } from '@utils/fp';
 import { diffColorRed, diffColorGreen } from './color';
 
 type xyToDataSingle = (
   x: number,
   y: number
-) => Option<{ format: 'single'; name: string; total: number }>;
+) => Option.Option<{ format: 'single'; name: string; total: number }>;
 
 type xyToDataDouble = (
   x: number,
   y: number
-) => Option<{
+) => Option.Option<{
   format: 'double';
   name: string;
   totalLeft: number;
@@ -44,7 +45,7 @@ export type TooltipProps = {
 );
 
 export default function Tooltip(props: TooltipProps) {
-  const { format, canvasRef, xyToData } = props;
+  const { canvasRef } = props;
   const [content, setContent] = React.useState({
     title: {
       text: '',
@@ -86,63 +87,80 @@ export default function Tooltip(props: TooltipProps) {
         visibility: 'visible',
       };
 
-      const opt = xyToData(e.offsetX, e.offsetY);
-      const isNone = opt.isNone();
-
-      if (isNone) {
-        onMouseOut();
-        return;
-      }
-
-      const data = opt.get();
-
-      // set the content
-      switch (data.format) {
+      switch (props.format) {
         case 'single': {
-          const d = formatSingle(formatter, data.total, sampleRate, numTicks);
+          const opt = props.xyToData(e.offsetX, e.offsetY);
 
-          setContent({
-            title: {
-              text: data.name,
-              diff: {
-                text: '',
-                color: '',
+          const fn = pipe(
+            opt,
+            Option.match(
+              (data) => {
+                const d = formatSingle(
+                  formatter,
+                  data.total,
+                  sampleRate,
+                  numTicks
+                );
+                return () =>
+                  setContent({
+                    title: {
+                      text: data.name,
+                      diff: {
+                        text: '',
+                        color: '',
+                      },
+                    },
+                    left: d.left,
+                    right: '',
+                  });
               },
-            },
-            left: d.left,
-            right: '',
-          });
+              () => {
+                return onMouseOut;
+              }
+            )
+          );
 
+          fn();
           break;
         }
 
         case 'double': {
-          if (format === 'single') {
-            throw new Error(
-              "props format is 'single' but it has been mapped to 'double'"
-            );
-          }
+          const opt = props.xyToData(e.offsetX, e.offsetY);
 
-          const d = formatDouble({
-            formatter,
-            sampleRate,
-            totalLeft: data.totalLeft,
-            leftTicks,
-            totalRight: data.totalRight,
-            rightTicks,
-            title: data.name,
-          });
+          const fn = pipe(
+            opt,
+            Option.match(
+              (data) => {
+                const d = formatDouble({
+                  formatter,
+                  sampleRate,
+                  totalLeft: data.totalLeft,
+                  leftTicks,
+                  totalRight: data.totalRight,
+                  rightTicks,
+                  title: data.name,
+                });
 
-          setContent({
-            title: d.title,
-            left: d.left,
-            right: d.right,
-          });
+                return () =>
+                  setContent({
+                    title: d.title,
+                    left: d.left,
+                    right: d.right,
+                  });
+              },
+              () => {
+                return onMouseOut;
+              }
+            )
+          );
 
+          fn();
           break;
         }
-        default:
+
+        default: {
           throw new Error(`Unsupported format:'`);
+        }
       }
 
       setStyle(style);
@@ -150,7 +168,7 @@ export default function Tooltip(props: TooltipProps) {
 
     // these are the dependencies from props
     // that are going to be used in onMouseMove
-    [numTicks, sampleRate, units, format, xyToData]
+    [numTicks, sampleRate, units, props.format, props.xyToData]
   );
 
   React.useEffect(() => {

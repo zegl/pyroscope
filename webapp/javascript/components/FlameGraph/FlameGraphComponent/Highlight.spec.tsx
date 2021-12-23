@@ -24,13 +24,13 @@ describe('Highlight', () => {
       <TestComponent
         barHeight={50}
         xyToHighlightData={xyToHighlightData}
-        zoom={Option.none()}
+        zoom={Option.None}
       />
     );
 
     // hover over a bar
     xyToHighlightData.mockReturnValueOnce(
-      Option.of({
+      Option.fromNullable({
         left: 10,
         top: 5,
         width: 100,
@@ -46,7 +46,7 @@ describe('Highlight', () => {
     });
 
     // hover outside the canvas
-    xyToHighlightData.mockReturnValueOnce(Option.none());
+    xyToHighlightData.mockReturnValueOnce(Option.None);
     userEvent.hover(screen.getByTestId('canvas'));
     expect(screen.getByTestId('flamegraph-highlight')).not.toBeVisible();
   });

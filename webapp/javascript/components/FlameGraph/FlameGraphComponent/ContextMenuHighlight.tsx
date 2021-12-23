@@ -1,12 +1,12 @@
 import React from 'react';
-import { Option } from '@utils/fp';
+import { Option, pipe } from '@utils/fp';
 import styles from './ContextMenuHighlight.module.css';
 
 export interface HighlightProps {
   // probably the same as the bar height
   barHeight: number;
 
-  node: Option<{ top: number; left: number; width: number }>;
+  node: Option.Option<{ top: number; left: number; width: number }>;
 }
 
 const initialSyle: React.CSSProperties = {
@@ -22,18 +22,25 @@ export default function ContextMenuHighlight(props: HighlightProps) {
   const [style, setStyle] = React.useState(initialSyle);
 
   React.useEffect(
-    () => {
-      node.match({
-        None: () => setStyle(initialSyle),
-        Some: (data) =>
-          setStyle({
-            visibility: 'visible',
-            height: `${barHeight}px`,
-            ...data,
-          }),
-      });
+    function () {
+      pipe(
+        node,
+        Option.match(
+          (data) => {
+            setStyle({
+              visibility: 'visible',
+              height: `${barHeight}px`,
+              ...data,
+            });
+          },
+          () => {
+            setStyle(initialSyle);
+          }
+        )
+      );
+
+      // refresh callback functions when they change
     },
-    // refresh callback functions when they change
     [node]
   );
 

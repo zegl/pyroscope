@@ -23,6 +23,7 @@ THIS SOFTWARE.
 
 /* eslint-disable no-continue */
 import { Flamebearer, addTicks } from '@models/flamebearer';
+import { Option, pipe } from '@utils/fp';
 import {
   PX_PER_LEVEL,
   COLLAPSE_THRESHOLD,
@@ -45,6 +46,7 @@ import {
   getPackageNameFromStackTrace,
   highlightColor,
 } from './color';
+
 // there's a dependency cycle here but it should be fine
 /* eslint-disable-next-line import/no-cycle */
 import Flamegraph from './Flamegraph';
@@ -96,10 +98,16 @@ export default function RenderCanvas(props: CanvasRendererConfig) {
 
   //  const pxPerTick = graphWidth / numTicks / (rangeMax - rangeMin);
   const ctx = canvas.getContext('2d');
-  const selectedLevel = zoom.map((z) => z.i).getOrElse(0);
+  const selectedLevel = pipe(
+    zoom,
+    Option.mapWithDefault(0, (z) => z.i)
+  );
   const formatter = getFormatter(numTicks, sampleRate, units);
-  const isFocused = focusedNode.isSome();
-  const topLevel = focusedNode.map((f) => f.i).getOrElse(0);
+  const isFocused = Option.isSome(focusedNode);
+  const topLevel = pipe(
+    focusedNode,
+    Option.mapWithDefault(0, (f) => f.i)
+  );
 
   const canvasHeight =
     PX_PER_LEVEL * (levels.length - topLevel) + (isFocused ? BAR_HEIGHT : 0);
@@ -127,9 +135,13 @@ export default function RenderCanvas(props: CanvasRendererConfig) {
     ctx.fill();
 
     // TODO show the samples too?
-    const shortName = focusedNode
-      .map((f) => `total (${f.i - 1} level(s) collapsed)`)
-      .getOrElse('total');
+    const shortName = pipe(
+      focusedNode,
+      Option.mapWithDefault(
+        'total',
+        (f) => `total (${f.i - 1} level(s) collapsed)`
+      )
+    );
 
     // Set the font syle
     // It's important to set the font BEFORE calculating 'characterSize'
@@ -221,7 +233,12 @@ export default function RenderCanvas(props: CanvasRendererConfig) {
         j,
         // discount for the levels we skipped
         // otherwise it will dim out all nodes
-        i: i + focusedNode.map((f) => f.i).getOrElse(0),
+        i:
+          i +
+          pipe(
+            focusedNode,
+            Option.mapWithDefault(0, (f) => f.i)
+          ),
         //        i: i + (isFocused ? focusedNode.i : 0),
         names,
         collapsed,

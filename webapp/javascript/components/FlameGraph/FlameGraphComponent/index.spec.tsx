@@ -21,8 +21,8 @@ describe('FlamegraphComponent', () => {
     render(
       <FlamegraphComponent
         fitMode="HEAD"
-        zoom={Option.none()}
-        focusedNode={Option.none()}
+        zoom={Option.None}
+        focusedNode={Option.None}
         highlightQuery=""
         onZoom={onZoom}
         onFocusOnNode={onFocusOnNode}
@@ -43,8 +43,8 @@ describe('FlamegraphComponent', () => {
     render(
       <FlamegraphComponent
         fitMode="HEAD"
-        zoom={Option.none()}
-        focusedNode={Option.none()}
+        zoom={Option.None}
+        focusedNode={Option.None}
         highlightQuery=""
         onZoom={onZoom}
         onFocusOnNode={onFocusOnNode}
@@ -76,8 +76,8 @@ describe('FlamegraphComponent', () => {
     render(
       <FlamegraphComponent
         fitMode="HEAD"
-        zoom={Option.none()}
-        focusedNode={Option.none()}
+        zoom={Option.None}
+        focusedNode={Option.None}
         highlightQuery=""
         onZoom={onZoom}
         onFocusOnNode={onFocusOnNode}
@@ -106,8 +106,8 @@ describe('FlamegraphComponent', () => {
       const { rerender } = render(
         <FlamegraphComponent
           fitMode="HEAD"
-          zoom={Option.none()}
-          focusedNode={Option.none()}
+          zoom={Option.None}
+          focusedNode={Option.None}
           highlightQuery=""
           onZoom={onZoom}
           onFocusOnNode={onFocusOnNode}
@@ -137,8 +137,8 @@ describe('FlamegraphComponent', () => {
       rerender(
         <FlamegraphComponent
           fitMode="HEAD"
-          zoom={Option.none()}
-          focusedNode={Option.none()}
+          zoom={Option.None}
+          focusedNode={Option.None}
           highlightQuery=""
           onZoom={onZoom}
           onFocusOnNode={onFocusOnNode}
@@ -168,8 +168,8 @@ describe('FlamegraphComponent', () => {
       render(
         <FlamegraphComponent
           fitMode="HEAD"
-          zoom={Option.none()}
-          focusedNode={Option.none()}
+          zoom={Option.None}
+          focusedNode={Option.None}
           highlightQuery=""
           onZoom={onZoom}
           onFocusOnNode={onFocusOnNode}
@@ -205,8 +205,8 @@ describe('FlamegraphComponent', () => {
       render(
         <FlamegraphComponent
           fitMode="HEAD"
-          zoom={Option.none()}
-          focusedNode={Option.none()}
+          zoom={Option.None}
+          focusedNode={Option.None}
           highlightQuery=""
           onZoom={onZoom}
           onFocusOnNode={onFocusOnNode}
@@ -228,8 +228,8 @@ describe('FlamegraphComponent', () => {
       render(
         <FlamegraphComponent
           fitMode="HEAD"
-          zoom={Option.none()}
-          focusedNode={Option.none()}
+          zoom={Option.None}
+          focusedNode={Option.None}
           highlightQuery=""
           onZoom={onZoom}
           onFocusOnNode={onFocusOnNode}
@@ -257,8 +257,8 @@ describe('FlamegraphComponent', () => {
     render(
       <FlamegraphComponent
         fitMode="HEAD"
-        zoom={Option.none()}
-        focusedNode={Option.none()}
+        zoom={Option.None}
+        focusedNode={Option.None}
         highlightQuery=""
         onZoom={onZoom}
         onFocusOnNode={onFocusOnNode}

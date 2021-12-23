@@ -68,7 +68,7 @@ describe('ProfileHeader', () => {
         updateView={() => {}}
         updateViewDiff={() => {}}
         isFlamegraphDirty={false}
-        selectedNode={Option.none()}
+        selectedNode={Option.None}
         onFocusOnSubtree={() => {}}
       />
     );
@@ -89,7 +89,7 @@ describe('ProfileHeader', () => {
         updateView={() => {}}
         updateViewDiff={() => {}}
         isFlamegraphDirty={false}
-        selectedNode={Option.none()}
+        selectedNode={Option.None}
         onFocusOnSubtree={() => {}}
       />
     );
@@ -120,7 +120,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -141,7 +141,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -167,7 +167,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -192,7 +192,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -217,7 +217,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -242,7 +242,7 @@ describe('ProfileHeader', () => {
         updateView={() => {}}
         updateViewDiff={() => {}}
         isFlamegraphDirty={false}
-        selectedNode={Option.none()}
+        selectedNode={Option.None}
         onFocusOnSubtree={() => {}}
       />
     );
@@ -287,7 +287,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -309,7 +309,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.some({ i: 999, j: 999 })}
+          selectedNode={Option.Some({ i: 999, j: 999 })}
           onFocusOnSubtree={onFocusOnSubtree}
         />
       );
@@ -334,7 +334,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -356,7 +356,7 @@ describe('ProfileHeader', () => {
           fitMode={FitModes.HEAD}
           updateView={() => {}}
           updateViewDiff={() => {}}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -381,7 +381,7 @@ describe('ProfileHeader', () => {
         updateView={() => {}}
         updateViewDiff={updateViewDiff}
         isFlamegraphDirty={false}
-        selectedNode={Option.none()}
+        selectedNode={Option.None}
         onFocusOnSubtree={() => {}}
       />
     );
@@ -398,7 +398,7 @@ describe('ProfileHeader', () => {
           updateView={() => {}}
           updateViewDiff={() => {}}
           isFlamegraphDirty={false}
-          selectedNode={Option.none()}
+          selectedNode={Option.None}
           onFocusOnSubtree={() => {}}
         />
       );
@@ -481,7 +481,7 @@ describe('ProfileHeader', () => {
         updateView={updateView}
         updateViewDiff={() => {}}
         isFlamegraphDirty={false}
-        selectedNode={Option.none()}
+        selectedNode={Option.None}
         onFocusOnSubtree={() => {}}
       />
     );
