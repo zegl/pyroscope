@@ -1,6 +1,6 @@
 import CanvasConverter from 'canvas-to-buffer';
 import { createCanvas } from 'canvas';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import TestData from './testData';
 import Flamegraph from './Flamegraph';
 

@@ -1,4 +1,4 @@
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import Flamegraph from './Flamegraph';
 import { BAR_HEIGHT } from './constants';
 import TestData from './testData';

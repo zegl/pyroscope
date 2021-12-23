@@ -1,7 +1,7 @@
 import { createFF } from '@utils/flamebearer';
 import { Flamebearer } from '@models/flamebearer';
 import { DeepReadonly } from 'ts-essentials';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import { PX_PER_LEVEL, BAR_HEIGHT, COLLAPSE_THRESHOLD } from './constants';
 // there's a dependency cycle here but it should be fine
 /* eslint-disable-next-line import/no-cycle */

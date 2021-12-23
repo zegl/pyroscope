@@ -1,4 +1,4 @@
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import React from 'react';
 import { DeepReadonly } from 'ts-essentials';
 import styles from './Highlight.module.css';

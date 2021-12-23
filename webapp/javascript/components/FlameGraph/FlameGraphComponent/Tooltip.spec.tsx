@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 
 import { diffColorRed, diffColorGreen } from './color';
 import { Units } from '../../../util/format';

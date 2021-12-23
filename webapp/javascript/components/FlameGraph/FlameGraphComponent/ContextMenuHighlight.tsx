@@ -1,5 +1,5 @@
 import React from 'react';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import styles from './ContextMenuHighlight.module.css';
 
 export interface HighlightProps {

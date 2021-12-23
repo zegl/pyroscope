@@ -6,7 +6,7 @@ import {
   formatPercent,
   ratioToPercent,
 } from '@utils/format';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import { diffColorRed, diffColorGreen } from './color';
 
 type xyToDataSingle = (

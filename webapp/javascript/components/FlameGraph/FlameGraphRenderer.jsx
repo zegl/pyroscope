@@ -7,7 +7,7 @@
 
 import React from 'react';
 import clsx from 'clsx';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import Graph from './FlameGraphComponent';
 import ProfilerTable from '../ProfilerTable';
 import Toolbar from '../Toolbar';

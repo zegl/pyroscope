@@ -10,7 +10,7 @@ import { faTable } from '@fortawesome/free-solid-svg-icons/faTable';
 import { faUndo } from '@fortawesome/free-solid-svg-icons/faUndo';
 import { faCompressAlt } from '@fortawesome/free-solid-svg-icons/faCompressAlt';
 import { DebounceInput } from 'react-debounce-input';
-import { Option } from 'prelude-ts';
+import { Option } from '@utils/fp';
 import useResizeObserver from '@react-hook/resize-observer';
 import Button from '@ui/Button';
 import { FitModes } from '../util/fitMode';
