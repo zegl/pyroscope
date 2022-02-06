@@ -57,3 +57,11 @@ pyroscopeConfigs:
         - action: labelmap
           regex: __meta_kubernetes_pod_annotation_pyroscope_io_profile_(.+)
           replacement: __profile_$1
+service:
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
+
+  # --  Specify a service type
+  type: NodePort
+  # -- Kubernetes port where service is exposed
+  port: 4040
+  nodePort: 30002

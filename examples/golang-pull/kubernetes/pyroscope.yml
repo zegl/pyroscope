@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: demo
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: '2022-02-05T06:43:07Z'
+  labels:
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pyroscope
+    app.kubernetes.io/version: 0.8.0
+    helm.sh/chart: pyroscope-0.2.31
+  name: demo-pyroscope
+  namespace: default
+  resourceVersion: '831'
+  uid: 14cf6a37-6d3a-44bd-a6db-69851f8164d5
+spec:
+  clusterIP: 10.96.23.183
+  clusterIPs:
+    - 10.96.23.183
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 4040
+      protocol: TCP
+      targetPort: api
+  selector:
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/name: pyroscope
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

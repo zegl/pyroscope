@@ -28,3 +28,5 @@ cypress/screenshots
 # this file may contain sensitive credentials
 pkg/server/testdata/oauth-config.yml
 dist
+pkg/main/**
+~/var/**

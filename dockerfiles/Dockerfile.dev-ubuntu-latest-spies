@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt-get update \
+RUN apt-get update --fix-missing\
     && DEBIAN_FRONTEND=noninteractive apt-get install -yq git golang-1.16 make nodejs npm \
     && DEBIAN_FRONTEND=noninteractive apt-get install -yq php-dev rustc \
     && npm install --global yarn
