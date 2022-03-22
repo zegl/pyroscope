@@ -16,11 +16,32 @@ app.get('/', (req, res) => {
   res.send('Available routes are: /bike, /car, /scooter');
 });
 
+function tagSpan(name) {
+  return eval('obj = { ' + name + ': function (fn) { return fn } }.' + name);
+}
+
+
+// Object.defineProperty(adder, 'name', {
+//   value: 'subber',
+//   writable: false
+// });
+//(adder as any).name = "subber";
+// (adder as any).displayName = "subber333";
+const subber = tagSpan("subber4545");
+console.log(subber.name);
+const subberFn = subber(function (a,b ) {
+  if ( b.toString()[1] === '3' ) {
+    return a +  b * 2;
+}
+  return a + b;
+});
+console.log(subberFn.name);
+
 const genericSearchHandler = (p: number) => (req: any, res: any) => {
   const time = +new Date() + p * 1000;
   let i = 0;
   while (+new Date() < time) {
-    i += Math.random();
+    i = subberFn(i, Math.random());
   }
   res.send('Vehicle found');
 };
@@ -48,6 +69,7 @@ setInterval(() => {
 }, 1000);
 
 Pyroscope.init();
+
 
 app.listen(port, () => {
   console.log(
