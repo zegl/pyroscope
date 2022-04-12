@@ -17,6 +17,8 @@ import Header from './Header';
 import { FlamegraphPalette } from './colorPalette';
 import indexStyles from './styles.module.scss';
 
+import { mapNodeToPackageUrl } from '../../sourceMapper';
+
 interface FlamegraphProps {
   flamebearer: Flamebearer;
   focusedNode: ConstructorParameters<typeof Flamegraph>[2];
@@ -28,6 +30,7 @@ interface FlamegraphProps {
   onFocusOnNode: (i: number, j: number) => void;
 
   onReset: () => void;
+  onSourceCode?: () => void;
   isDirty: () => boolean;
 
   ExportData?: React.ComponentProps<typeof Header>['ExportData'];
@@ -47,7 +50,7 @@ export default function FlameGraphComponent(props: FlamegraphProps) {
 
   const { flamebearer, focusedNode, fitMode, highlightQuery, zoom } = props;
 
-  const { onZoom, onReset, isDirty, onFocusOnNode } = props;
+  const { onZoom, onReset, onSourceCode, isDirty, onFocusOnNode } = props;
   const { ExportData } = props;
   const { 'data-testid': dataTestId } = props;
   const { palette, setPalette } = props;
@@ -125,7 +128,8 @@ export default function FlameGraphComponent(props: FlamegraphProps) {
   };
 
   const onContextMenuOpen = (x: number, y: number) => {
-    setRightClickedNode(xyToHighlightData(x, y));
+    const node = xyToHighlightData(x, y);
+    setRightClickedNode(node);
   };
 
   // Context Menu stuff
@@ -144,23 +148,39 @@ export default function FlameGraphComponent(props: FlamegraphProps) {
           () => () => {},
           (f) => onFocusOnNode.bind(null, f.i, f.j)
         );
+        const onOpenPackage = (...args) => {
+          bar.match({
+            Just: (node) => {
+              console.log(node);
+              const url = mapNodeToPackageUrl(node);
+              if (url) {
+                window.open(url);
+              }
+            },
+            Nothing: () => {},
+          });
+        };
 
-        return (
+        return [
           <MenuItem
             key="focus"
             disabled={!hoveredOnValidNode}
             onClick={onClick}
           >
             Focus on this subtree
-          </MenuItem>
-        );
+          </MenuItem>,
+          <MenuItem key="source" disabled={false} onClick={onOpenPackage}>
+            View Package Docs
+          </MenuItem>,
+        ];
       };
 
       return [
         <MenuItem key="reset" disabled={!dirty} onClick={onReset}>
           Reset View
         </MenuItem>,
-        FocusItem(),
+
+        ...FocusItem(),
       ];
     },
     [flamegraph]
