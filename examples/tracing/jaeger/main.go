@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 
 	"rideshare/bike"
 	"rideshare/car"
+	"rideshare/log"
 	"rideshare/rideshare"
 	"rideshare/scooter"
 
+	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
@@ -40,10 +41,16 @@ func main() {
 	c := rideshare.ReadConfig()
 	c.AppName = "ride-sharing-app"
 
+	// Configure logger.
+	logrus.SetFormatter(log.AppNameFieldDecorator{
+		AppName:   c.AppName,
+		Formatter: logrus.StandardLogger().Formatter,
+	})
+
 	// Configure profiler.
 	p, err := rideshare.Profiler(c)
 	if err != nil {
-		log.Fatalf("failed to initialize profiler: %v\n", err)
+		logrus.Fatalf("failed to initialize profiler: %v\n", err)
 	}
 	defer func() {
 		_ = p.Stop()
@@ -52,7 +59,7 @@ func main() {
 	// Configure tracing.
 	tp, err := rideshare.TracerProvider(c)
 	if err != nil {
-		log.Fatalf("failed to initialize profiler: %v\n", err)
+		logrus.Fatalf("failed to initialize profiler: %v\n", err)
 	}
 	defer func() {
 		_ = tp.Shutdown(context.Background())
@@ -64,6 +71,6 @@ func main() {
 	http.Handle("/car", otelhttp.NewHandler(http.HandlerFunc(carRoute), "CarHandler"))
 
 	if err = http.ListenAndServe(":5000", nil); !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 }

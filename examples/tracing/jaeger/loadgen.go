@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"rideshare/log"
 	"rideshare/rideshare"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -31,10 +32,16 @@ func main() {
 	c := rideshare.ReadConfig()
 	c.AppName = "load-generator"
 
+	// Configure logger.
+	logrus.SetFormatter(log.AppNameFieldDecorator{
+		AppName:   c.AppName,
+		Formatter: logrus.StandardLogger().Formatter,
+	})
+
 	// Configure profiler.
 	p, err := rideshare.Profiler(c)
 	if err != nil {
-		log.Fatalf("failed to initialize profiler: %v\n", err)
+		logrus.Fatalf("failed to initialize profiler: %v\n", err)
 	}
 	defer func() {
 		_ = p.Stop()
@@ -43,7 +50,7 @@ func main() {
 	// Configure tracing.
 	tp, err := rideshare.TracerProvider(c)
 	if err != nil {
-		log.Fatalf("failed to initialize profiler: %v\n", err)
+		logrus.Fatalf("failed to initialize profiler: %v\n", err)
 	}
 	defer func() {
 		_ = tp.Shutdown(context.Background())
@@ -51,7 +58,7 @@ func main() {
 
 	for {
 		if err = orderVehicle(context.Background()); err != nil {
-			fmt.Println(err)
+			logrus.WithError(err).Error("ordering vehicle")
 		}
 	}
 }
@@ -73,7 +80,6 @@ func orderVehicle(ctx context.Context) error {
 	vehicle := vehicles[rand.Intn(len(hosts))]
 	span.SetAttributes(attribute.String("vehicle", vehicle))
 	url := fmt.Sprintf("http://%s:5000/%s", host, vehicle)
-	fmt.Println("requesting", url)
 
 	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
