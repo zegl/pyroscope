@@ -3,18 +3,17 @@ package authz
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/model"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 )
 
 type Authorizer struct {
-	logger    logrus.FieldLogger
+	logger    logging.Logger
 	httpUtils httputils.Utils
 }
 
-func NewAuthorizer(logger logrus.FieldLogger, httpUtils httputils.Utils) Authorizer {
+func NewAuthorizer(logger logging.Logger, httpUtils httputils.Utils) Authorizer {
 	return Authorizer{
 		logger:    logger,
 		httpUtils: httputils.NewDefaultHelper(logger),

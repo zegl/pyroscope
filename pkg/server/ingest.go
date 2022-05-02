@@ -8,9 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/pyroscope-io/pyroscope/pkg/agent/types"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/parser"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
@@ -23,7 +22,7 @@ type Parser interface {
 }
 
 type ingestHandler struct {
-	log       *logrus.Logger
+	log       logging.Logger
 	parser    Parser
 	onSuccess func(pi *parser.PutInput)
 	httpUtils httputils.Utils
@@ -38,7 +37,7 @@ func (ctrl *Controller) ingestHandler() http.Handler {
 	}, ctrl.httpUtils)
 }
 
-func NewIngestHandler(log *logrus.Logger, p Parser, onSuccess func(pi *parser.PutInput), httpUtils httputils.Utils) http.Handler {
+func NewIngestHandler(log logging.Logger, p Parser, onSuccess func(pi *parser.PutInput), httpUtils httputils.Utils) http.Handler {
 	return ingestHandler{
 		log:       log,
 		parser:    p,

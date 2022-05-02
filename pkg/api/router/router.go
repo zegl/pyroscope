@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/api"
 	"github.com/pyroscope-io/pyroscope/pkg/api/authz"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 )
 
@@ -17,7 +17,7 @@ type Router struct {
 }
 
 type Services struct {
-	Logger logrus.FieldLogger
+	Logger logging.Logger
 
 	api.AuthService
 	api.UserService

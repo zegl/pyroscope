@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/pyroscope-io/pyroscope/pkg/config"
-	"github.com/sirupsen/logrus"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"golang.org/x/oauth2"
 )
 
@@ -18,7 +18,7 @@ type oauthHandlerGoogle struct {
 	allowedDomains []string
 }
 
-func newOauthGoogleHandler(cfg config.GoogleOauth, baseURL string, log *logrus.Logger) (*oauthHandlerGoogle, error) {
+func newOauthGoogleHandler(cfg config.GoogleOauth, baseURL string, log logging.Logger) (*oauthHandlerGoogle, error) {
 	authURL, err := url.Parse(cfg.AuthURL)
 	if err != nil {
 		return nil, err

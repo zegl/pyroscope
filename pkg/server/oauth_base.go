@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"golang.org/x/oauth2"
 )
 
@@ -29,7 +29,7 @@ type oauthBase struct {
 	config        *oauth2.Config
 	authURL       *url.URL
 	apiURL        string
-	log           *logrus.Logger
+	log           logging.Logger
 	callbackRoute string
 	redirectRoute string
 	baseURL       string

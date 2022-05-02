@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/build"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/util/updates"
@@ -30,7 +31,7 @@ type IndexHandlerConfig struct {
 }
 
 type IndexHandler struct {
-	log       *logrus.Logger
+	log       logging.Logger
 	storage   storage.AppNameGetter
 	dir       http.FileSystem
 	fs        http.Handler
@@ -58,7 +59,7 @@ func (ctrl *Controller) indexHandler() http.HandlerFunc {
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
 func NewIndexHandler(
-	log *logrus.Logger,
+	log logging.Logger,
 	s storage.AppNameGetter,
 	dir http.FileSystem,
 	stats StatsReceiver,

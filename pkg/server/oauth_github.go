@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
 	"github.com/pyroscope-io/pyroscope/pkg/config"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 )
 
 type oauthHandlerGithub struct {
@@ -17,7 +17,7 @@ type oauthHandlerGithub struct {
 	allowedOrganizations []string
 }
 
-func newGithubHandler(cfg config.GithubOauth, baseURL string, log *logrus.Logger) (*oauthHandlerGithub, error) {
+func newGithubHandler(cfg config.GithubOauth, baseURL string, log logging.Logger) (*oauthHandlerGithub, error) {
 	authURL, err := url.Parse(cfg.AuthURL)
 	if err != nil {
 		return nil, err

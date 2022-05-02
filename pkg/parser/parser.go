@@ -12,12 +12,12 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/convert"
 	"github.com/pyroscope-io/pyroscope/pkg/convert/jfr"
 	"github.com/pyroscope-io/pyroscope/pkg/convert/pprof"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/transporttrie"
-	"github.com/sirupsen/logrus"
 	"github.com/valyala/bytebufferpool"
 )
 
@@ -43,13 +43,13 @@ type PutInput struct {
 }
 
 type Parser struct {
-	log        *logrus.Logger
+	log        logging.Logger
 	storage    ParserStorage
 	exporter   storage.MetricsExporter
 	bufferPool *bytebufferpool.Pool
 }
 
-func New(log *logrus.Logger, s ParserStorage, exporter storage.MetricsExporter) *Parser {
+func New(log logging.Logger, s ParserStorage, exporter storage.MetricsExporter) *Parser {
 	return &Parser{
 		log:        log,
 		storage:    s,

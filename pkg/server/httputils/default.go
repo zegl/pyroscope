@@ -11,15 +11,15 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-multierror"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/model"
-	"github.com/sirupsen/logrus"
 )
 
 type DefaultImpl struct {
-	logger logrus.FieldLogger
+	logger logging.Logger
 }
 
-func NewDefaultHelper(logger logrus.FieldLogger) *DefaultImpl {
+func NewDefaultHelper(logger logging.Logger) *DefaultImpl {
 	return &DefaultImpl{
 		logger: logger,
 	}
@@ -45,7 +45,7 @@ func (d *DefaultImpl) HandleError(r *http.Request, w http.ResponseWriter, err er
 	d.error(r, w, d.Logger(r), err)
 }
 
-func (d *DefaultImpl) error(r *http.Request, w http.ResponseWriter, rLogger logrus.FieldLogger, err error) {
+func (d *DefaultImpl) error(r *http.Request, w http.ResponseWriter, rLogger logging.Logger, err error) {
 	d.ErrorCode(r, w, rLogger, err, -1)
 }
 
@@ -61,7 +61,7 @@ func (d *DefaultImpl) error(r *http.Request, w http.ResponseWriter, rLogger logr
 //
 // It does not end the HTTP request; the caller should ensure no further
 // writes are done to w.
-func (d *DefaultImpl) ErrorCode(r *http.Request, w http.ResponseWriter, rLogger logrus.FieldLogger, err error, code int) {
+func (d *DefaultImpl) ErrorCode(r *http.Request, w http.ResponseWriter, rLogger logging.Logger, err error, code int) {
 	switch {
 	case err == nil:
 		return
@@ -150,8 +150,8 @@ func (*DefaultImpl) IDFromRequest(r *http.Request) (uint, error) {
 
 // Logger creates a new logger scoped to the request
 // and enriches it with the known fields.
-func (d *DefaultImpl) Logger(r *http.Request) logrus.FieldLogger {
-	fields := logrus.Fields{
+func (d *DefaultImpl) Logger(r *http.Request) logging.Logger {
+	fields := logging.Fields{
 		"url":    r.URL.String(),
 		"method": r.Method,
 		"remote": r.RemoteAddr,

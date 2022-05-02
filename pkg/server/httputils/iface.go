@@ -3,7 +3,7 @@ package httputils
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 )
 
 // TODO(petethepig): this interface is pretty large, we can probably simplify it, some methods do pretty similar things
@@ -12,7 +12,7 @@ type Utils interface {
 	MustJSON(r *http.Request, w http.ResponseWriter, v interface{})
 	HandleError(r *http.Request, w http.ResponseWriter, err error)
 	IDFromRequest(r *http.Request) (uint, error)
-	Logger(r *http.Request) logrus.FieldLogger
+	Logger(r *http.Request) logging.Logger
 
 	// these methods were originally extracted from server package
 	WriteResponseJSON(r *http.Request, w http.ResponseWriter, res interface{})

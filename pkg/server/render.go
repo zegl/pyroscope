@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
@@ -51,7 +51,7 @@ type RenderResponse struct {
 }
 
 type RenderHandler struct {
-	log             *logrus.Logger
+	log             logging.Logger
 	storage         storage.Getter
 	dir             http.FileSystem
 	stats           StatsReceiver
@@ -64,7 +64,7 @@ func (ctrl *Controller) renderHandler() http.HandlerFunc {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewRenderHandler(l *logrus.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderHandler {
+func NewRenderHandler(l logging.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderHandler {
 	return &RenderHandler{
 		log:             l,
 		storage:         s,

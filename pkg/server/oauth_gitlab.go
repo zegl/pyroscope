@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/pyroscope-io/pyroscope/pkg/config"
-	"github.com/sirupsen/logrus"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"golang.org/x/oauth2"
 )
 
@@ -16,7 +16,7 @@ type oauthHandlerGitlab struct {
 	allowedGroups []string
 }
 
-func newOauthGitlabHandler(cfg config.GitlabOauth, baseURL string, log *logrus.Logger) (*oauthHandlerGitlab, error) {
+func newOauthGitlabHandler(cfg config.GitlabOauth, baseURL string, log logging.Logger) (*oauthHandlerGitlab, error) {
 	authURL, err := url.Parse(cfg.AuthURL)
 	if err != nil {
 		return nil, err

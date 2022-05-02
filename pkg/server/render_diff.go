@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/pyroscope-io/pyroscope/pkg/util/attime"
-	"github.com/sirupsen/logrus"
 )
 
 // RenderDiffParams refers to the params accepted by the renderDiffHandler
@@ -93,7 +93,7 @@ func (ctrl *Controller) renderDiffHandler() http.HandlerFunc {
 }
 
 type RenderDiffHandler struct {
-	log             *logrus.Logger
+	log             logging.Logger
 	storage         storage.Getter
 	dir             http.FileSystem
 	stats           StatsReceiver
@@ -102,7 +102,7 @@ type RenderDiffHandler struct {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewRenderDiffHandler(l *logrus.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderDiffHandler {
+func NewRenderDiffHandler(l logging.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderDiffHandler {
 	return &RenderDiffHandler{
 		log:             l,
 		storage:         s,
@@ -194,7 +194,7 @@ func (rh *RenderDiffHandler) loadTree(ctx context.Context, gi *storage.GetInput,
 		rerr := recover()
 		if rerr != nil {
 			_err = fmt.Errorf("panic: %v", rerr)
-			rh.log.WithFields(logrus.Fields{
+			rh.log.WithFields(logging.Fields{
 				"recover": rerr,
 				"stack":   string(debug.Stack()),
 			}).Error("loadTree: recovered from panic")

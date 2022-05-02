@@ -30,6 +30,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/api/authz"
 	"github.com/pyroscope-io/pyroscope/pkg/api/router"
 	"github.com/pyroscope-io/pyroscope/pkg/config"
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/model"
 	"github.com/pyroscope-io/pyroscope/pkg/scrape/labels"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
@@ -54,7 +55,7 @@ type Controller struct {
 
 	config     *config.Server
 	storage    *storage.Storage
-	log        *logrus.Logger
+	log        logging.Logger
 	httpServer *http.Server
 	db         *gorm.DB
 	notifier   Notifier
@@ -85,7 +86,7 @@ type Controller struct {
 
 type Config struct {
 	Configuration *config.Server
-	*logrus.Logger
+	logging.Logger
 	*storage.Storage
 	*gorm.DB
 	Notifier

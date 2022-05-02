@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
-	"github.com/sirupsen/logrus"
 )
 
 type MergeHandler struct {
-	log             *logrus.Logger
+	log             logging.Logger
 	storage         storage.Merger
 	dir             http.FileSystem
 	stats           StatsReceiver
@@ -26,7 +26,7 @@ func (ctrl *Controller) mergeHandler() http.HandlerFunc {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewMergeHandler(l *logrus.Logger, s storage.Merger, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *MergeHandler {
+func NewMergeHandler(l logging.Logger, s storage.Merger, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *MergeHandler {
 	return &MergeHandler{
 		log:             l,
 		storage:         s,

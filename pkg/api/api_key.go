@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/pyroscope-io/pyroscope/pkg/logging"
 	"github.com/pyroscope-io/pyroscope/pkg/model"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
-	"github.com/sirupsen/logrus"
 )
 
 //go:generate mockgen -destination mocks/api_key.go -package mocks . APIKeyService
@@ -20,12 +20,12 @@ type APIKeyService interface {
 }
 
 type APIKeyHandler struct {
-	logger        logrus.FieldLogger
+	logger        logging.Logger
 	apiKeyService APIKeyService
 	httpUtils     httputils.Utils
 }
 
-func NewAPIKeyHandler(logger logrus.FieldLogger, apiKeyService APIKeyService, httpUtils httputils.Utils) APIKeyHandler {
+func NewAPIKeyHandler(logger logging.Logger, apiKeyService APIKeyService, httpUtils httputils.Utils) APIKeyHandler {
 	return APIKeyHandler{
 		logger:        logger,
 		apiKeyService: apiKeyService,
