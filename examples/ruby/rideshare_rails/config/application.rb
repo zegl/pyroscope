@@ -36,6 +36,7 @@ module RideshareRails
     config.generators.system_tests = nil
     config.action_controller.include_all_helpers = true
     config.active_record.sqlite3_production_warning=false
+    config.secret_key_base = ENV["SECRET_KEY_BASE"] || "5d6d2675d792396c63bb688f1b78bbf7"
 
     Pyroscope.configure do |config|
       config.app_name = "ride-sharing-app"

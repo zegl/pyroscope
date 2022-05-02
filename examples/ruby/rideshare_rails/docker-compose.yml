@@ -33,6 +33,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.load-generator
+    depends_on:
+      - us-east-1
+      - eu-west-1
+      - us-west-1
     links:
       - us-east-1
       - eu-west-1

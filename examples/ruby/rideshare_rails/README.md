@@ -1,24 +1,40 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a simple demonstration of using pyroscope gem with rubyonrails app.
 
-Things you may want to cover:
+In order to run this demo you may just run it with 
 
-* Ruby version
+```
+docker-compose up -d
+```
 
-* System dependencies
+Then you may point your browser to localhost:4040 to check generated flamegraphs.
 
-* Configuration
+Key changes you may find at `./config/application.rb`
 
-* Database creation
+```
+   Pyroscope.configure do |config|
+      config.app_name = "ride-sharing-app"
+      config.server_address = "http://pyroscope:4040"
+      config.tags = {
+        "region": ENV["REGION"] || "us-east-1",
+      }
+```
 
-* Database initialization
+As you may see here we define app name, server name and configure static tags for pyroscope agent instance.
 
-* How to run the test suite
+At `./app/helpers/application_helper.rb` you may find dynamic tagging for each request.  
 
-* Services (job queues, cache servers, search engines, etc.)
+```
+def find_nearest_vehicle(n, vehicle)
+    Pyroscope.tag_wrapper({ "vehicle" => vehicle }) do
+      i = 0
+      start_time = Time.new
+      while Time.new - start_time < n do
+        i += 1
+      end
 
-* Deployment instructions
-
-* ...
+      check_driver_availability(n) if vehicle == "car"
+    end
+  end
+```
