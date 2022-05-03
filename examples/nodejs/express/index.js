@@ -33,12 +33,15 @@ function scooterSearchHandler() {
   return genericSearchHandler(0.25);
 }
 
+// Init pyroscope with the server name & region
 Pyroscope.init({
   autoStart: false,
-  server: 'http://pyroscope:4040',
+  name: 'rideapp',
+  server: 'http://localhost:4040',
   tags: { region },
 });
-Pyroscope.startCpuProfiling();
+
+Pyroscope.startHeapProfiling();
 
 app.get('/bike', function bikeSearchHandler(req, res) {
   return genericSearchHandler(0.5)(req, res);
@@ -46,6 +49,7 @@ app.get('/bike', function bikeSearchHandler(req, res) {
 app.get('/car', carSearchHandler());
 app.get('/scooter', scooterSearchHandler());
 
+// Generate load for the server
 setInterval(() => {
   fetch(`http://localhost:${port}/car`);
 }, 1800);
@@ -58,6 +62,7 @@ setInterval(() => {
   fetch(`http://localhost:${port}/scooter`);
 }, 1000);
 
+// Start the server
 app.listen(port, () => {
   console.log(
     `Server has started on port ${port}, use http://localhost:${port}`
