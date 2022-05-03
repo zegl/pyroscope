@@ -35,13 +35,11 @@ function scooterSearchHandler() {
 
 // Init pyroscope with the server name & region
 Pyroscope.init({
-  autoStart: false,
+  autoStart: true,
   name: 'rideapp',
-  server: 'http://localhost:4040',
+  server: 'http://pyroscope:4040',
   tags: { region },
 });
-
-Pyroscope.startHeapProfiling();
 
 app.get('/bike', function bikeSearchHandler(req, res) {
   return genericSearchHandler(0.5)(req, res);
