@@ -33,6 +33,7 @@ func (s *Storage) initExemplarsStorage(db BadgerDBWithCache, reg prometheus.Regi
 			s.tasksWG.Done()
 		}()
 		for {
+			// TODO(petethepig): drop it and see what happens in tests
 			select {
 			default:
 			case batch, ok := <-e.Batches():
