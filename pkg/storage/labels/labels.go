@@ -17,35 +17,23 @@ func New(db *badger.DB) *Labels {
 	return ll
 }
 
-func (ll *Labels) Put(key, val string) {
+func (ll *Labels) Put(key, val string) error {
 	kk := "l:" + key
 	kv := "v:" + key + ":" + val
-	// ks := "h:" + key + ":" + val + ":" + stree
 	err := ll.db.Update(func(txn *badger.Txn) error {
 		return txn.SetEntry(badger.NewEntry([]byte(kk), []byte{}))
 	})
 	if err != nil {
-		// TODO: handle
-		panic(err)
+		return err
 	}
 	err = ll.db.Update(func(txn *badger.Txn) error {
 		return txn.SetEntry(badger.NewEntry([]byte(kv), []byte{}))
 	})
-	if err != nil {
-		// TODO: handle
-		panic(err)
-	}
-	// err = ll.db.Update(func(txn *badger.Txn) error {
-	// 	return txn.SetEntry(badger.NewEntry([]byte(ks), []byte{}))
-	// })
-	// if err != nil {
-	// 	// TODO: handle
-	// 	panic(err)
-	// }
+	return err
 }
 
 //revive:disable-next-line:get-return A callback is fine
-func (ll *Labels) GetKeys(cb func(k string) bool) {
+func (ll *Labels) GetKeys(cb func(k string) bool) error {
 	err := ll.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.Prefix = []byte("l:")
@@ -62,10 +50,7 @@ func (ll *Labels) GetKeys(cb func(k string) bool) {
 		}
 		return nil
 	})
-	if err != nil {
-		// TODO: handle
-		panic(err)
-	}
+	return err
 }
 
 // Delete removes key value label pair from the storage.
@@ -77,8 +62,8 @@ func (ll *Labels) Delete(key, value string) error {
 }
 
 //revive:disable-next-line:get-return A callback is fine
-func (ll *Labels) GetValues(key string, cb func(v string) bool) {
-	err := ll.db.View(func(txn *badger.Txn) error {
+func (ll *Labels) GetValues(key string, cb func(v string) bool) error {
+	return ll.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.Prefix = []byte("v:" + key + ":")
 		opts.PrefetchValues = false
@@ -96,8 +81,4 @@ func (ll *Labels) GetValues(key string, cb func(v string) bool) {
 		}
 		return nil
 	})
-	if err != nil {
-		// TODO: handle
-		panic(err)
-	}
 }

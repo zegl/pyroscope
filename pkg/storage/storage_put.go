@@ -50,11 +50,15 @@ func (s *Storage) Put(_ context.Context, pi *PutInput) error {
 		"aggregationType": pi.AggregationType,
 	}).Debug("storage.Put")
 
+	sk := pi.Key.SegmentKey()
+
 	for k, v := range pi.Key.Labels() {
-		s.labels.Put(k, v)
+		err := s.labels.Put(k, v)
+		if err != nil {
+			return fmt.Errorf("failed to put labels: %w", err)
+		}
 	}
 
-	sk := pi.Key.SegmentKey()
 	for k, v := range pi.Key.Labels() {
 		key := k + ":" + v
 		r, err := s.dimensions.GetOrCreate(key)
@@ -68,7 +72,7 @@ func (s *Storage) Put(_ context.Context, pi *PutInput) error {
 
 	r, err := s.segments.GetOrCreate(sk)
 	if err != nil {
-		return fmt.Errorf("segments cache for %v: %v", sk, err)
+		return fmt.Errorf("segments cache for %v: %w", sk, err)
 	}
 
 	st := r.(*segment.Segment)
