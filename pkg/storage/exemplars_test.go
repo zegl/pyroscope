@@ -16,6 +16,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/config"
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/health"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/exemplars"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
@@ -128,7 +129,7 @@ var _ = Describe("Profiles retention policy", func() {
 
 				flushExemplars(s.exemplars)
 				rp := &segment.RetentionPolicy{ExemplarsRetentionTime: t3}
-				s.exemplars.enforceRetentionPolicy(context.Background(), rp)
+				s.exemplars.EnforceRetentionPolicy(context.Background(), rp)
 
 				o, err := s.MergeProfiles(context.Background(), types.MergeProfilesInput{
 					AppName:  "app.cpu",
@@ -149,9 +150,9 @@ var _ = Describe("Profiles retention policy", func() {
 	})
 })
 
-func flushExemplars(e *exemplars) {
-	e.flush(e.currentBatch)
-	n := len(e.batches)
+func flushExemplars(e *exemplars.Exemplars) {
+	e.Flush(e.CurrentBatch())
+	n := len(e.Batches())
 	var i int
 	for {
 		if i == n {
@@ -160,9 +161,9 @@ func flushExemplars(e *exemplars) {
 		select {
 		default:
 			return
-		case b, ok := <-e.batches:
+		case b, ok := <-e.Batches():
 			if ok {
-				e.flush(b)
+				e.Flush(b)
 				i++
 			}
 		}

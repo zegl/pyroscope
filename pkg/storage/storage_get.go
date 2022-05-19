@@ -71,7 +71,7 @@ func (s *Storage) Get(ctx context.Context, gi *types.GetInput) (*types.GetOutput
 				Timeline:   segment.GenerateTimeline(gi.StartTime, gi.EndTime),
 				Tree:       tree.New(),
 			}
-			err := s.exemplars.fetch(ctx, gi.Query.AppName, ids, func(t *tree.Tree) error {
+			err := s.exemplars.Fetch(ctx, gi.Query.AppName, ids, func(t *tree.Tree) error {
 				o.Tree.Merge(t)
 				return nil
 			})

@@ -6,6 +6,7 @@ import (
 
 	"github.com/dgraph-io/badger/v2"
 
+	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 )
 
@@ -36,7 +37,7 @@ func (s *Storage) cleanupTreesDB(ctx context.Context) (err error) {
 		err = batch.Flush()
 	}()
 	return s.trees.Update(func(txn *badger.Txn) error {
-		it := txn.NewIterator(badger.IteratorOptions{Prefix: treePrefix.bytes()})
+		it := txn.NewIterator(badger.IteratorOptions{Prefix: prefix.TreePrefix.Bytes()})
 		defer it.Close()
 		var c int64
 		for it.Rewind(); it.Valid(); it.Next() {
@@ -48,7 +49,7 @@ func (s *Storage) cleanupTreesDB(ctx context.Context) (err error) {
 				return nil
 			}
 			item := it.Item()
-			if k, ok := treePrefix.trim(item.Key()); ok {
+			if k, ok := prefix.TreePrefix.Trim(item.Key()); ok {
 				if _, _, err = segment.ParseTreeKey(string(k)); err == nil {
 					continue
 				}

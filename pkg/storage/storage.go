@@ -16,7 +16,9 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/health"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/core"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/exemplars"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/labels"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/util/bytesize"
@@ -35,13 +37,15 @@ type Storage struct {
 	logger  *logrus.Logger
 	metrics *metrics
 
-	segments   BadgerDBWithCache
-	dimensions BadgerDBWithCache
-	dicts      BadgerDBWithCache
-	trees      BadgerDBWithCache
-	main       BadgerDBWithCache
-	labels     *labels.Labels
-	exemplars  *exemplars
+	segments    BadgerDBWithCache
+	dimensions  BadgerDBWithCache
+	dicts       BadgerDBWithCache
+	trees       BadgerDBWithCache
+	main        BadgerDBWithCache
+	exemplarsDb BadgerDBWithCache
+
+	labels    *labels.Labels
+	exemplars *exemplars.Exemplars
 
 	core *core.Core
 
@@ -129,25 +133,24 @@ func New(c *Config, logger *logrus.Logger, reg prometheus.Registerer, hc *health
 	if s.main, err = c.NewBadger("main", "", nil); err != nil {
 		return nil, err
 	}
-	if s.dicts, err = c.NewBadger("dicts", dictionaryPrefix, dictionaryCodec{}); err != nil {
+	if s.dicts, err = c.NewBadger("dicts", prefix.DictionaryPrefix, dictionaryCodec{}); err != nil {
 		return nil, err
 	}
-	if s.dimensions, err = c.NewBadger("dimensions", dimensionPrefix, dimensionCodec{}); err != nil {
+	if s.dimensions, err = c.NewBadger("dimensions", prefix.DimensionPrefix, dimensionCodec{}); err != nil {
 		return nil, err
 	}
-	if s.segments, err = c.NewBadger("segments", segmentPrefix, segmentCodec{}); err != nil {
+	if s.segments, err = c.NewBadger("segments", prefix.SegmentPrefix, segmentCodec{}); err != nil {
 		return nil, err
 	}
-	if s.trees, err = c.NewBadger("trees", treePrefix, treeCodec{s}); err != nil {
-		return nil, err
-	}
-
-	pdb, err := c.NewBadger("profiles", exemplarDataPrefix, nil)
-	if err != nil {
+	if s.trees, err = c.NewBadger("trees", prefix.TreePrefix, treeCodec{s}); err != nil {
 		return nil, err
 	}
 
-	s.initExemplarsStorage(pdb)
+	if s.exemplarsDb, err = c.NewBadger("profiles", prefix.ExemplarDataPrefix, nil); err != nil {
+		return nil, err
+	}
+
+	s.initExemplarsStorage(s.exemplarsDb, reg)
 	s.labels = labels.New(s.main.DBInstance())
 
 	if err = s.migrate(); err != nil {
@@ -332,7 +335,7 @@ func (s *Storage) exemplarsRetentionTask() {
 	rp := s.retentionPolicy()
 	if !rp.ExemplarsRetentionTime.IsZero() {
 		s.withContext(func(ctx context.Context) {
-			s.exemplars.enforceRetentionPolicy(ctx, rp)
+			s.exemplars.EnforceRetentionPolicy(ctx, rp)
 		})
 	}
 }
@@ -358,7 +361,7 @@ func (s *Storage) databases() []BadgerDBWithCache {
 		s.segments,
 		s.dicts,
 		s.trees,
-		s.exemplars.db,
+		s.exemplarsDb,
 	}
 }
 

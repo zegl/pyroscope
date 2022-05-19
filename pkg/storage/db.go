@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/util/bytesize"
 )
 
@@ -26,27 +27,7 @@ type db struct {
 	gcCount prometheus.Counter
 }
 
-type Prefix string
-
-const (
-	segmentPrefix    Prefix = "s:"
-	treePrefix       Prefix = "t:"
-	dictionaryPrefix Prefix = "d:"
-	dimensionPrefix  Prefix = "i:"
-)
-
-func (p Prefix) String() string      { return string(p) }
-func (p Prefix) bytes() []byte       { return []byte(p) }
-func (p Prefix) key(k string) []byte { return []byte(string(p) + k) }
-
-func (p Prefix) trim(k []byte) ([]byte, bool) {
-	if len(k) > len(p) {
-		return k[len(p):], true
-	}
-	return nil, false
-}
-
-func (s *Storage) newBadger(name string, p Prefix, codec cache.Codec) (BadgerDBWithCache, error) {
+func (s *Storage) newBadger(name string, p prefix.Prefix, codec cache.Codec) (BadgerDBWithCache, error) {
 	var d *db
 	var err error
 	logger := logrus.New()

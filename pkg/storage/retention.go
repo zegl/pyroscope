@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 )
 
@@ -84,7 +85,7 @@ func (s *Storage) deleteSegmentData(ctx context.Context, k *segment.Key, rp *seg
 	for _, n := range nodes {
 		treeKey := segment.TreeKey(sk, n.depth, n.time)
 		s.trees.Discard(treeKey)
-		switch err = batch.Delete(treePrefix.key(treeKey)); {
+		switch err = batch.Delete(prefix.TreePrefix.Key(treeKey)); {
 		case err == nil:
 		case errors.Is(err, badger.ErrKeyNotFound):
 			continue
@@ -152,7 +153,7 @@ func (s *Storage) reclaimSegmentSpace(k *segment.Key, size int64) error {
 			// otherwise there is a chance to remove more trees than needed.
 			AllVersions: true,
 			// The prefix matches all trees in the segment.
-			Prefix: treePrefix.key(k.SegmentKey()),
+			Prefix: prefix.TreePrefix.Key(k.SegmentKey()),
 		})
 		defer it.Close()
 		for it.Rewind(); it.Valid(); it.Next() {
@@ -161,7 +162,7 @@ func (s *Storage) reclaimSegmentSpace(k *segment.Key, size int64) error {
 			}
 
 			item := it.Item()
-			if tk, ok := treePrefix.trim(item.Key()); ok {
+			if tk, ok := prefix.TreePrefix.Trim(item.Key()); ok {
 				treeKey := string(tk)
 				s.trees.Discard(treeKey)
 				// Update the time boundary for the segment level.

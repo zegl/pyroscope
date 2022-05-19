@@ -9,6 +9,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dict"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 )
 
@@ -87,7 +88,7 @@ func migrateDictionaryKeys(s *Storage) error {
 	segmentNameKeys := map[string][]byte{}
 	return s.dicts.Update(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
-		opts.Prefix = dictionaryPrefix.bytes()
+		opts.Prefix = prefix.DictionaryPrefix.Bytes()
 		it := txn.NewIterator(opts)
 		defer it.Close()
 		// Find all dicts with keys:
@@ -97,7 +98,7 @@ func migrateDictionaryKeys(s *Storage) error {
 			item := it.Item()
 			k := item.Key()
 			item.ExpiresAt()
-			k, ok := dictionaryPrefix.trim(k)
+			k, ok := prefix.DictionaryPrefix.Trim(k)
 			if !ok {
 				continue
 			}
@@ -128,11 +129,11 @@ func migrateDictionaryKeys(s *Storage) error {
 				continue
 			}
 			// Migration from version before 0.0.34.
-			if err := txn.Set(dictionaryPrefix.key(dictKey), v); err != nil {
+			if err := txn.Set(prefix.DictionaryPrefix.Key(dictKey), v); err != nil {
 				return err
 			}
 			// Remove dict stored with old keys.
-			if err := txn.Delete(dictionaryPrefix.key(k)); err != nil {
+			if err := txn.Delete(prefix.DictionaryPrefix.Key(k)); err != nil {
 				return err
 			}
 		}
