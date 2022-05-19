@@ -13,6 +13,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 	traceCatGetCallback = traceTaskGet + ".Callback"
 )
 
-func (s *Storage) Get(ctx context.Context, gi *GetInput) (*GetOutput, error) {
+func (s *Storage) Get(ctx context.Context, gi *types.GetInput) (*types.GetOutput, error) {
 	var t *trace.Task
 	ctx, t = trace.NewTask(ctx, traceTaskGet)
 	defer t.End()
@@ -63,7 +64,7 @@ func (s *Storage) Get(ctx context.Context, gi *GetInput) (*GetOutput, error) {
 			ids = append(ids, m.Value)
 		}
 		if len(ids) > 0 {
-			o := GetOutput{
+			o := types.GetOutput{
 				SpyName:    "gospy",
 				Units:      "samples",
 				SampleRate: 100,
@@ -137,7 +138,7 @@ func (s *Storage) Get(ctx context.Context, gi *GetInput) (*GetOutput, error) {
 		resultTrie = resultTrie.Clone(big.NewRat(1, int64(writesTotal)))
 	}
 
-	return &GetOutput{
+	return &types.GetOutput{
 		Tree:            resultTrie,
 		Timeline:        timeline,
 		SpyName:         lastSegment.SpyName(),

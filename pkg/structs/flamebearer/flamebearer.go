@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 //revive:disable:max-public-structs Config structs
@@ -99,7 +99,7 @@ type FlamebearerTimelineV1 struct {
 	Watermarks    map[int]int64 `json:"watermarks"`
 }
 
-func NewProfile(name string, output *storage.GetOutput, maxNodes int) FlamebearerProfile {
+func NewProfile(name string, output *types.GetOutput, maxNodes int) FlamebearerProfile {
 	fb := output.Tree.FlamebearerStruct(maxNodes)
 	return FlamebearerProfile{
 		Version: 1,
@@ -111,7 +111,7 @@ func NewProfile(name string, output *storage.GetOutput, maxNodes int) Flamebeare
 	}
 }
 
-func NewCombinedProfile(name string, left, right *storage.GetOutput, maxNodes int) (FlamebearerProfile, error) {
+func NewCombinedProfile(name string, left, right *types.GetOutput, maxNodes int) (FlamebearerProfile, error) {
 	if left.Units != right.Units {
 		// if one of them is empty, it still makes sense merging the profiles
 		if left.Units != "" && right.Units != "" {
@@ -158,7 +158,7 @@ func newFlambearer(fb *tree.Flamebearer) FlamebearerV1 {
 	}
 }
 
-func newMetadata(name string, format tree.Format, output *storage.GetOutput) FlamebearerMetadataV1 {
+func newMetadata(name string, format tree.Format, output *types.GetOutput) FlamebearerMetadataV1 {
 	return FlamebearerMetadataV1{
 		Name:       name,
 		Format:     string(format),
@@ -223,7 +223,7 @@ func (fb FlamebearerProfileV1) Validate() error {
 	return nil
 }
 
-func isEmpty(t *storage.GetOutput) bool {
+func isEmpty(t *types.GetOutput) bool {
 	// TODO: improve heuristic
 	return t.SampleRate == 0
 }

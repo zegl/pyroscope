@@ -12,9 +12,9 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/pyroscope-io/pyroscope/pkg/util/attime"
 )
@@ -29,7 +29,7 @@ var (
 type renderParams struct {
 	format   string
 	maxNodes int
-	gi       *storage.GetInput
+	gi       *types.GetInput
 
 	leftStartTime time.Time
 	leftEndTime   time.Time
@@ -52,7 +52,7 @@ type RenderResponse struct {
 
 type RenderHandler struct {
 	log             *logrus.Logger
-	storage         storage.Getter
+	storage         types.Getter
 	dir             http.FileSystem
 	stats           StatsReceiver
 	maxNodesDefault int
@@ -64,7 +64,7 @@ func (ctrl *Controller) renderHandler() http.HandlerFunc {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewRenderHandler(l *logrus.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderHandler {
+func NewRenderHandler(l *logrus.Logger, s types.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderHandler {
 	return &RenderHandler{
 		log:             l,
 		storage:         s,
@@ -101,7 +101,7 @@ func (rh *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if out == nil {
-		out = &storage.GetOutput{
+		out = &types.GetOutput{
 			Tree:     tree.New(),
 			Timeline: segment.GenerateTimeline(p.gi.StartTime, p.gi.EndTime),
 		}
@@ -148,7 +148,7 @@ type mergeResponse struct {
 }
 
 // Enhance the flamebearer with a few additional fields the UI requires
-func (*RenderHandler) mountRenderResponse(flame flamebearer.FlamebearerProfile, appName string, gi *storage.GetInput, maxNodes int) RenderResponse {
+func (*RenderHandler) mountRenderResponse(flame flamebearer.FlamebearerProfile, appName string, gi *types.GetInput, maxNodes int) RenderResponse {
 	metadata := renderMetadataResponse{
 		flame.Metadata,
 		appName,
@@ -168,7 +168,7 @@ func (*RenderHandler) mountRenderResponse(flame flamebearer.FlamebearerProfile, 
 
 func (rh *RenderHandler) renderParametersFromRequest(r *http.Request, p *renderParams) error {
 	v := r.URL.Query()
-	p.gi = new(storage.GetInput)
+	p.gi = new(types.GetInput)
 
 	k := v.Get("name")
 	q := v.Get("query")

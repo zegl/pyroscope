@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/pyroscope-io/pyroscope/pkg/convert/pprof"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 
 	"gopkg.in/yaml.v2"
 )
@@ -61,9 +61,9 @@ func dumpJSON(w io.Writer) error {
 	return err
 }
 
-type ingester struct{ actual []*storage.PutInput }
+type ingester struct{ actual []*types.PutInput }
 
-func (m *ingester) Enqueue(_ context.Context, p *storage.PutInput) { m.actual = append(m.actual, p) }
+func (m *ingester) Enqueue(_ context.Context, p *types.PutInput) { m.actual = append(m.actual, p) }
 
 func printProfiles(w io.Writer, pprofPath, configPath, profileType string) error {
 	c := tree.DefaultSampleTypeMapping

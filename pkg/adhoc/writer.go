@@ -13,6 +13,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/config"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 )
 
@@ -53,7 +54,7 @@ func (w writer) write(t0, t1 time.Time) error {
 			w.logger.WithError(err).Error("parsing storage key")
 			continue
 		}
-		gi := &storage.GetInput{
+		gi := &types.GetInput{
 			StartTime: t0,
 			EndTime:   t1,
 			Key:       skey,

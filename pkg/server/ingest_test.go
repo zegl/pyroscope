@@ -26,6 +26,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/testing"
 )
 
@@ -144,7 +145,7 @@ var _ = Describe("server", func() {
 						}
 						sk, _ := segment.ParseKey(expectedKey)
 						time.Sleep(sleepDur)
-						gOut, err := s.Get(context.TODO(), &storage.GetInput{
+						gOut, err := s.Get(context.TODO(), &types.GetInput{
 							StartTime: st,
 							EndTime:   et,
 							Key:       sk,

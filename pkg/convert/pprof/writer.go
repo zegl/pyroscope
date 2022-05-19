@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 type Ingester interface {
-	Enqueue(context.Context, *storage.PutInput)
+	Enqueue(context.Context, *types.PutInput)
 }
 
 type ProfileWriter struct {
@@ -53,7 +53,7 @@ func (w *ProfileWriter) WriteProfile(ctx context.Context, startTime, endTime tim
 		if !ok {
 			return false, fmt.Errorf("sample value type is unknown")
 		}
-		pi := storage.PutInput{
+		pi := types.PutInput{
 			StartTime: startTime,
 			EndTime:   endTime,
 			SpyName:   w.spyName,

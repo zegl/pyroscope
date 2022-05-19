@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/pyroscope-io/pyroscope/webapp"
 	"google.golang.org/protobuf/proto"
@@ -57,7 +57,7 @@ func newExternalWriter(format string, maxNodesRender int, now time.Time) (*exter
 	}, nil
 }
 
-func (w *externalWriter) write(name string, out *storage.GetOutput) error {
+func (w *externalWriter) write(name string, out *types.GetOutput) error {
 	if w.format == "none" {
 		return nil
 	}

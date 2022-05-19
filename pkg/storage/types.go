@@ -5,26 +5,8 @@ package storage
 import (
 	"github.com/dgraph-io/badger/v2"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
-	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/util/bytesize"
 )
-
-type PutInput types.PutInput
-type Putter types.Putter
-type GetInput types.GetInput
-type GetOutput types.GetOutput
-type Getter types.Getter
-type Enqueuer types.Enqueuer
-type MergeProfilesInput types.MergeProfilesInput
-type MergeProfilesOutput types.MergeProfilesOutput
-type Merger types.Merger
-type GetLabelKeysByQueryInput types.GetLabelKeysByQueryInput
-type GetLabelKeysByQueryOutput types.GetLabelKeysByQueryOutput
-type LabelsGetter types.LabelsGetter
-type GetLabelValuesByQueryInput types.GetLabelValuesByQueryInput
-type GetLabelValuesByQueryOutput types.GetLabelValuesByQueryOutput
-type LabelValuesGetter types.LabelValuesGetter
-type AppNameGetter types.AppNameGetter
 
 // Other functions from storage.Storage:
 // type Backend interface {

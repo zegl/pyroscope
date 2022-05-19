@@ -6,15 +6,15 @@ import (
 	"net/http"
 
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/sirupsen/logrus"
 )
 
 type MergeHandler struct {
 	log             *logrus.Logger
-	storage         storage.Merger
+	storage         types.Merger
 	dir             http.FileSystem
 	stats           StatsReceiver
 	maxNodesDefault int
@@ -26,7 +26,7 @@ func (ctrl *Controller) mergeHandler() http.HandlerFunc {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewMergeHandler(l *logrus.Logger, s storage.Merger, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *MergeHandler {
+func NewMergeHandler(l *logrus.Logger, s types.Merger, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *MergeHandler {
 	return &MergeHandler{
 		log:             l,
 		storage:         s,
@@ -57,7 +57,7 @@ func (mh *MergeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		maxNodes = req.MaxNodes
 	}
 
-	out, err := mh.storage.MergeProfiles(r.Context(), storage.MergeProfilesInput{
+	out, err := mh.storage.MergeProfiles(r.Context(), types.MergeProfilesInput{
 		AppName:  req.AppName,
 		Profiles: req.Profiles,
 	})

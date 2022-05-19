@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/pyroscope-io/jfr-parser/parser"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
-func ParseJFR(ctx context.Context, r io.Reader, s storage.Putter, pi *storage.PutInput) (err error) {
+func ParseJFR(ctx context.Context, r io.Reader, s types.Putter, pi *types.PutInput) (err error) {
 	chunks, err := parser.Parse(r)
 	if err != nil {
 		return fmt.Errorf("unable to parse JFR format: %w", err)
@@ -28,7 +28,7 @@ func ParseJFR(ctx context.Context, r io.Reader, s storage.Putter, pi *storage.Pu
 	return err
 }
 
-func parse(ctx context.Context, c parser.Chunk, s storage.Putter, pi *storage.PutInput) (err error) {
+func parse(ctx context.Context, c parser.Chunk, s types.Putter, pi *types.PutInput) (err error) {
 	var event, alloc, lock string
 	cpu := tree.New()
 	wall := tree.New()

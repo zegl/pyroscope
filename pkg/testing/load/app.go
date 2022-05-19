@@ -3,9 +3,9 @@ package load
 import (
 	"time"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 type App struct {
@@ -53,8 +53,8 @@ func NewApp(seed int, name string, c AppConfig) *App {
 	return &a
 }
 
-func (a *App) CreatePutInput(from, to time.Time) *storage.PutInput {
-	return &storage.PutInput{
+func (a *App) CreatePutInput(from, to time.Time) *types.PutInput {
+	return &types.PutInput{
 		StartTime:       from,
 		EndTime:         to,
 		Key:             segment.NewKey(a.tags.Next()),

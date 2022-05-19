@@ -7,6 +7,7 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/util/slices"
 )
 
@@ -23,8 +24,8 @@ func (s *Storage) GetValues(_ context.Context, key string, cb func(v string) boo
 	})
 }
 
-func (s *Storage) GetKeysByQuery(_ context.Context, in GetLabelKeysByQueryInput) (GetLabelKeysByQueryOutput, error) {
-	var output GetLabelKeysByQueryOutput
+func (s *Storage) GetKeysByQuery(_ context.Context, in types.GetLabelKeysByQueryInput) (types.GetLabelKeysByQueryOutput, error) {
+	var output types.GetLabelKeysByQueryOutput
 	parsedQuery, err := flameql.ParseQuery(in.Query)
 	if err != nil {
 		return output, err
@@ -54,8 +55,8 @@ func (s *Storage) GetKeysByQuery(_ context.Context, in GetLabelKeysByQueryInput)
 	return output, nil
 }
 
-func (s *Storage) GetValuesByQuery(_ context.Context, in GetLabelValuesByQueryInput) (GetLabelValuesByQueryOutput, error) {
-	var output GetLabelValuesByQueryOutput
+func (s *Storage) GetValuesByQuery(_ context.Context, in types.GetLabelValuesByQueryInput) (types.GetLabelValuesByQueryOutput, error) {
+	var output types.GetLabelValuesByQueryOutput
 	parsedQuery, err := flameql.ParseQuery(in.Query)
 	if err != nil {
 		return output, err

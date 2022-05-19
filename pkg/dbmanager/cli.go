@@ -20,6 +20,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/config"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	stypes "github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 func Cli(dbCfg *config.DbManager, srvCfg *config.Server, args []string) error {
@@ -107,7 +108,7 @@ loop:
 		}
 
 		srct2 := srct.Add(resolution)
-		gOut, err := s.Get(context.TODO(), &storage.GetInput{
+		gOut, err := s.Get(context.TODO(), &stypes.GetInput{
 			StartTime: srct,
 			EndTime:   srct2,
 			Key:       sk,
@@ -120,7 +121,7 @@ loop:
 			dstt := srct.Add(durDiff)
 			dstt2 := dstt.Add(resolution)
 
-			err = s.Put(context.TODO(), &storage.PutInput{
+			err = s.Put(context.TODO(), &stypes.PutInput{
 				StartTime:  dstt,
 				EndTime:    dstt2,
 				Key:        sk,

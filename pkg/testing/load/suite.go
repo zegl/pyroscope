@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 type StorageWriteSuite struct {
@@ -18,7 +18,7 @@ type StorageWriteSuite struct {
 
 	seed    int
 	writers int
-	writeFn func(*storage.PutInput)
+	writeFn func(*types.PutInput)
 }
 
 type StorageWriteSuiteConfig struct {
@@ -29,7 +29,7 @@ type StorageWriteSuiteConfig struct {
 
 	Seed    int
 	Writers int
-	WriteFn func(*storage.PutInput)
+	WriteFn func(*types.PutInput)
 }
 
 const (
@@ -89,7 +89,7 @@ func (s *StorageWriteSuite) Stats() Stats {
 }
 
 func (s *StorageWriteSuite) Start() {
-	q := make(chan *storage.PutInput)
+	q := make(chan *types.PutInput)
 	wg := new(sync.WaitGroup)
 	wg.Add(s.writers)
 	for i := 0; i < s.writers; i++ {

@@ -18,6 +18,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/health"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/testing"
 )
 
@@ -39,14 +40,14 @@ var _ = Describe("MergeProfiles", func() {
 				et := testing.SimpleTime(19)
 
 				k1, _ := segment.ParseKey("app.cpu{profile_id=a}")
-				Expect(s.Put(context.TODO(), &PutInput{
+				Expect(s.Put(context.TODO(), &types.PutInput{
 					StartTime: st,
 					EndTime:   et,
 					Key:       k1,
 					Val:       tree.Clone(big.NewRat(1, 1)),
 				})).ToNot(HaveOccurred())
 
-				Expect(s.Put(context.TODO(), &PutInput{
+				Expect(s.Put(context.TODO(), &types.PutInput{
 					StartTime: st,
 					EndTime:   et,
 					Key:       k1,
@@ -54,7 +55,7 @@ var _ = Describe("MergeProfiles", func() {
 				})).ToNot(HaveOccurred())
 
 				k2, _ := segment.ParseKey("app.cpu{profile_id=b}")
-				Expect(s.Put(context.TODO(), &PutInput{
+				Expect(s.Put(context.TODO(), &types.PutInput{
 					StartTime: st,
 					EndTime:   et,
 					Key:       k2,
@@ -62,7 +63,7 @@ var _ = Describe("MergeProfiles", func() {
 				})).ToNot(HaveOccurred())
 
 				flushExemplars(s.exemplars)
-				o, err := s.MergeProfiles(context.Background(), MergeProfilesInput{
+				o, err := s.MergeProfiles(context.Background(), types.MergeProfilesInput{
 					AppName:  "app.cpu",
 					Profiles: []string{"a"},
 				})
@@ -70,7 +71,7 @@ var _ = Describe("MergeProfiles", func() {
 				Expect(o.Tree).ToNot(BeNil())
 				Expect(o.Tree.Samples()).To(Equal(uint64(6)))
 
-				o, err = s.MergeProfiles(context.Background(), MergeProfilesInput{
+				o, err = s.MergeProfiles(context.Background(), types.MergeProfilesInput{
 					AppName:  "app.cpu",
 					Profiles: []string{"b"},
 				})
@@ -78,7 +79,7 @@ var _ = Describe("MergeProfiles", func() {
 				Expect(o.Tree).ToNot(BeNil())
 				Expect(o.Tree.Samples()).To(Equal(uint64(3)))
 
-				o, err = s.MergeProfiles(context.Background(), MergeProfilesInput{
+				o, err = s.MergeProfiles(context.Background(), types.MergeProfilesInput{
 					AppName:  "app.cpu",
 					Profiles: []string{"a", "b"},
 				})
@@ -108,7 +109,7 @@ var _ = Describe("Profiles retention policy", func() {
 				k1, _ := segment.ParseKey("app.cpu{profile_id=a}")
 				t1 := time.Now()
 				t2 := t1.Add(10 * time.Second)
-				Expect(s.Put(context.TODO(), &PutInput{
+				Expect(s.Put(context.TODO(), &types.PutInput{
 					StartTime: t1,
 					EndTime:   t2,
 					Key:       k1,
@@ -118,7 +119,7 @@ var _ = Describe("Profiles retention policy", func() {
 				t3 := t2.Add(10 * time.Second)
 				t4 := t3.Add(10 * time.Second)
 				k2, _ := segment.ParseKey("app.cpu{profile_id=b}")
-				Expect(s.Put(context.TODO(), &PutInput{
+				Expect(s.Put(context.TODO(), &types.PutInput{
 					StartTime: t3,
 					EndTime:   t4,
 					Key:       k2,
@@ -129,7 +130,7 @@ var _ = Describe("Profiles retention policy", func() {
 				rp := &segment.RetentionPolicy{ExemplarsRetentionTime: t3}
 				s.exemplars.enforceRetentionPolicy(context.Background(), rp)
 
-				o, err := s.MergeProfiles(context.Background(), MergeProfilesInput{
+				o, err := s.MergeProfiles(context.Background(), types.MergeProfilesInput{
 					AppName:  "app.cpu",
 					Profiles: []string{"a", "b"},
 				})
@@ -137,7 +138,7 @@ var _ = Describe("Profiles retention policy", func() {
 				Expect(o.Tree).ToNot(BeNil())
 				Expect(o.Tree.Samples()).To(Equal(uint64(3)))
 
-				gi := new(GetInput)
+				gi := new(types.GetInput)
 				gi.Query, _ = flameql.ParseQuery(`app.cpu{profile_id="b"}`)
 				o2, err := s.Get(context.TODO(), gi)
 				Expect(err).ToNot(HaveOccurred())

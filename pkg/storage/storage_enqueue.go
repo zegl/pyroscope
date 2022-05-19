@@ -4,14 +4,16 @@ import (
 	"context"
 	"fmt"
 	"runtime/debug"
+
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 type putInputWithCtx struct {
-	pi  *PutInput
+	pi  *types.PutInput
 	ctx context.Context
 }
 
-func (s *Storage) Enqueue(ctx context.Context, input *PutInput) {
+func (s *Storage) Enqueue(ctx context.Context, input *types.PutInput) {
 	select {
 	case s.queue <- &putInputWithCtx{input, ctx}:
 		return
@@ -44,7 +46,7 @@ func (s *Storage) runQueueWorker() {
 	}
 }
 
-func (s *Storage) safePut(ctx context.Context, input *PutInput) (err error) {
+func (s *Storage) safePut(ctx context.Context, input *types.PutInput) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic recovered: %v; %v", r, string(debug.Stack()))

@@ -27,7 +27,7 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/scrape/config"
 	"github.com/pyroscope-io/pyroscope/pkg/scrape/discovery/targetgroup"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 // Manager maintains a set of scrape pools and manages start/stop cycles
@@ -49,7 +49,7 @@ type Manager struct {
 }
 
 type Ingester interface {
-	Enqueue(context.Context, *storage.PutInput)
+	Enqueue(context.Context, *types.PutInput)
 }
 
 // NewManager is the Manager constructor

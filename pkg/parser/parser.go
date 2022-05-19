@@ -16,14 +16,15 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/transporttrie"
 	"github.com/sirupsen/logrus"
 	"github.com/valyala/bytebufferpool"
 )
 
 type ParserStorage interface {
-	storage.Putter
-	storage.Enqueuer
+	types.Putter
+	types.Enqueuer
 }
 
 type PutInput struct {
@@ -32,7 +33,7 @@ type PutInput struct {
 	Body              io.Reader
 	MultipartBoundary string
 
-	// these parameters are the same as the ones in storage.PutInput
+	// these parameters are the same as the ones in types.PutInput
 	StartTime       time.Time
 	EndTime         time.Time
 	Key             *segment.Key
@@ -58,7 +59,7 @@ func New(log *logrus.Logger, s ParserStorage, exporter storage.MetricsExporter) 
 	}
 }
 
-func (p *Parser) createParseCallback(pi *storage.PutInput) func([]byte, int) {
+func (p *Parser) createParseCallback(pi *types.PutInput) func([]byte, int) {
 	pi.Val = tree.New()
 	cb := pi.Val.InsertInt
 	o, ok := p.exporter.Evaluate(pi)
@@ -73,7 +74,7 @@ func (p *Parser) createParseCallback(pi *storage.PutInput) func([]byte, int) {
 
 // Put takes parser.PutInput, turns it into storage.PutIntput and enqueues it for a write
 func (p *Parser) Put(ctx context.Context, in *PutInput) (err error, pErr error) {
-	pi := &storage.PutInput{
+	pi := &types.PutInput{
 		StartTime:       in.StartTime,
 		EndTime:         in.EndTime,
 		Key:             in.Key,

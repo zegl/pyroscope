@@ -11,12 +11,10 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
-func (s *Storage) Put(_ context.Context, pi *PutInput) error {
-	// TODO: This is a pretty broad lock. We should find a way to make these locks more selective.
-	s.putMutex.Lock()
-	defer s.putMutex.Unlock()
+func (s *Storage) Put(_ context.Context, pi *types.PutInput) error {
 	if s.hc.IsOutOfDiskSpace() {
 		return errOutOfSpace
 	}

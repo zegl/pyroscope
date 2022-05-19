@@ -11,9 +11,9 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/agent/spy"
 	"github.com/pyroscope-io/pyroscope/pkg/convert"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 )
 
@@ -52,7 +52,7 @@ func PprofToProfileV1(b []byte, name string, maxNodes int) (*flamebearer.Flamebe
 			return nil
 		})
 
-		out := &storage.GetOutput{
+		out := &types.GetOutput{
 			Tree:       t,
 			Units:      units,
 			SpyName:    name,
@@ -80,7 +80,7 @@ func CollapsedToProfileV1(b []byte, name string, maxNodes int) (*flamebearer.Fla
 		}
 		t.Insert(line[:i], value)
 	}
-	out := &storage.GetOutput{
+	out := &types.GetOutput{
 		Tree:       t,
 		SpyName:    name,
 		SampleRate: 100, // We don't have this information, use the default
@@ -100,13 +100,13 @@ func DiffV1(name string, base, diff *flamebearer.FlamebearerProfile, maxNodes in
 	if err != nil {
 		return fb, fmt.Errorf("unable to convret diff profile to tree: %w", err)
 	}
-	bOut := &storage.GetOutput{
+	bOut := &types.GetOutput{
 		Units:      base.Metadata.Units,
 		SampleRate: base.Metadata.SampleRate,
 		SpyName:    base.Metadata.SpyName,
 		Tree:       bt,
 	}
-	dOut := &storage.GetOutput{
+	dOut := &types.GetOutput{
 		Units:      diff.Metadata.Units,
 		SampleRate: diff.Metadata.SampleRate,
 		SpyName:    diff.Metadata.SpyName,

@@ -8,13 +8,13 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
-type mockIngester struct{ actual []*storage.PutInput }
+type mockIngester struct{ actual []*types.PutInput }
 
-func (m *mockIngester) Enqueue(_ context.Context, p *storage.PutInput) {
+func (m *mockIngester) Enqueue(_ context.Context, p *types.PutInput) {
 	m.actual = append(m.actual, p)
 }
 

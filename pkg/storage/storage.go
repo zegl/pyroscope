@@ -15,8 +15,10 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/health"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/core"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/labels"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/util/bytesize"
 )
 
@@ -41,6 +43,8 @@ type Storage struct {
 	labels     *labels.Labels
 	exemplars  *exemplars
 
+	core *core.Core
+
 	hc *health.Controller
 
 	// Maintenance tasks are executed exclusively to avoid competition:
@@ -53,8 +57,6 @@ type Storage struct {
 
 	queueWorkersWG sync.WaitGroup
 	queue          chan *putInputWithCtx
-
-	putMutex sync.Mutex
 }
 
 type storageOptions struct {
@@ -77,7 +79,7 @@ type MetricsExporter interface {
 	// be used to evaluate and observe particular samples.
 	//
 	// If there are no matching rules, the function returns false.
-	Evaluate(*PutInput) (SampleObserver, bool)
+	Evaluate(*types.PutInput) (SampleObserver, bool)
 }
 
 type SampleObserver interface {

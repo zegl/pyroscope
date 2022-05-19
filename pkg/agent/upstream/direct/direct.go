@@ -11,6 +11,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 const upstreamThreads = 1
@@ -61,7 +62,7 @@ func (u *Direct) uploadProfile(j *upstream.UploadJob) {
 		return
 	}
 
-	pi := &storage.PutInput{
+	pi := &types.PutInput{
 		StartTime:       j.StartTime,
 		EndTime:         j.EndTime,
 		Key:             key,

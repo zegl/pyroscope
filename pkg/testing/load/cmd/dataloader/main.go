@@ -15,6 +15,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/config"
 	"github.com/pyroscope-io/pyroscope/pkg/health"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/testing/load"
 )
 
@@ -67,7 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	c.WriteFn = func(input *storage.PutInput) {
+	c.WriteFn = func(input *types.PutInput) {
 		if err = x.Put(context.TODO(), input); err != nil {
 			fmt.Println(err)
 		}

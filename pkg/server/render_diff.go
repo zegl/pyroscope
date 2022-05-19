@@ -12,8 +12,8 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/server/httputils"
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/structs/flamebearer"
 	"github.com/pyroscope-io/pyroscope/pkg/util/attime"
 	"github.com/sirupsen/logrus"
@@ -39,8 +39,8 @@ type RenderDiffResponse struct {
 }
 
 type diffParams struct {
-	Left  storage.GetInput
-	Right storage.GetInput
+	Left  types.GetInput
+	Right types.GetInput
 
 	Format   string
 	MaxNodes int
@@ -48,7 +48,7 @@ type diffParams struct {
 
 // parseDiffQueryParams parses query params into a diffParams
 func (rh *RenderDiffHandler) parseDiffQueryParams(r *http.Request, p *diffParams) (err error) {
-	parseDiffQueryParams := func(r *http.Request, prefix string) (gi storage.GetInput, err error) {
+	parseDiffQueryParams := func(r *http.Request, prefix string) (gi types.GetInput, err error) {
 		v := r.URL.Query()
 		getWithPrefix := func(param string) string {
 			return v.Get(prefix + strings.Title(param))
@@ -94,7 +94,7 @@ func (ctrl *Controller) renderDiffHandler() http.HandlerFunc {
 
 type RenderDiffHandler struct {
 	log             *logrus.Logger
-	storage         storage.Getter
+	storage         types.Getter
 	dir             http.FileSystem
 	stats           StatsReceiver
 	maxNodesDefault int
@@ -102,7 +102,7 @@ type RenderDiffHandler struct {
 }
 
 //revive:disable:argument-limit TODO(petethepig): we will refactor this later
-func NewRenderDiffHandler(l *logrus.Logger, s storage.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderDiffHandler {
+func NewRenderDiffHandler(l *logrus.Logger, s types.Getter, dir http.FileSystem, stats StatsReceiver, maxNodesDefault int, httpUtils httputils.Utils) *RenderDiffHandler {
 	return &RenderDiffHandler{
 		log:             l,
 		storage:         s,
@@ -168,11 +168,11 @@ func (rh *RenderDiffHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //revive:disable-next-line:argument-limit 7 parameters here is fine
 func (rh *RenderDiffHandler) loadTreeConcurrently(
 	ctx context.Context,
-	gi *storage.GetInput,
+	gi *types.GetInput,
 	treeStartTime, treeEndTime time.Time,
 	leftStartTime, leftEndTime time.Time,
 	rghtStartTime, rghtEndTime time.Time,
-) (treeOut, leftOut, rghtOut *storage.GetOutput, _ error) {
+) (treeOut, leftOut, rghtOut *types.GetOutput, _ error) {
 	var treeErr, leftErr, rghtErr error
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -189,7 +189,7 @@ func (rh *RenderDiffHandler) loadTreeConcurrently(
 	return treeOut, leftOut, rghtOut, nil
 }
 
-func (rh *RenderDiffHandler) loadTree(ctx context.Context, gi *storage.GetInput, startTime, endTime time.Time) (_ *storage.GetOutput, _err error) {
+func (rh *RenderDiffHandler) loadTree(ctx context.Context, gi *types.GetInput, startTime, endTime time.Time) (_ *types.GetOutput, _err error) {
 	defer func() {
 		rerr := recover()
 		if rerr != nil {
@@ -209,7 +209,7 @@ func (rh *RenderDiffHandler) loadTree(ctx context.Context, gi *storage.GetInput,
 	}
 	if out == nil {
 		// TODO: handle properly
-		return &storage.GetOutput{Tree: tree.New()}, nil
+		return &types.GetOutput{Tree: tree.New()}, nil
 	}
 	return out, nil
 }

@@ -4,10 +4,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 var (
@@ -36,7 +36,7 @@ var _ = Describe("FlamebearerProfile", func() {
 				Watermarks:              watermarks,
 			}
 
-			out := &storage.GetOutput{
+			out := &types.GetOutput{
 				Tree:       tree,
 				Timeline:   timeline,
 				SpyName:    spyName,
@@ -94,8 +94,8 @@ var _ = Describe("Diff", func() {
 	Context("sampleRate does not match", func() {
 		When("they are both set", func() {
 			It("returns an error", func() {
-				left := &storage.GetOutput{Tree: treeA, SampleRate: 100}
-				right := &storage.GetOutput{Tree: treeB, SampleRate: 101}
+				left := &types.GetOutput{Tree: treeA, SampleRate: 100}
+				right := &types.GetOutput{Tree: treeB, SampleRate: 101}
 
 				_, err := NewCombinedProfile("name", left, right, maxNodes)
 				Expect(err).To(MatchError("left sample rate (100) does not match right sample rate (101)"))
@@ -104,8 +104,8 @@ var _ = Describe("Diff", func() {
 
 		When("one of them is empty", func() {
 			It("does not return an error", func() {
-				left := &storage.GetOutput{Tree: treeA, SampleRate: 0}
-				right := &storage.GetOutput{Tree: treeB, SampleRate: 100}
+				left := &types.GetOutput{Tree: treeA, SampleRate: 0}
+				right := &types.GetOutput{Tree: treeB, SampleRate: 100}
 
 				_, err := NewCombinedProfile("name", left, right, maxNodes)
 				Expect(err).ToNot(HaveOccurred())
@@ -119,8 +119,8 @@ var _ = Describe("Diff", func() {
 	Context("units does not match", func() {
 		When("they are both set", func() {
 			It("returns an error", func() {
-				left := &storage.GetOutput{Tree: treeA, SampleRate: sampleRate, Units: "unitA"}
-				right := &storage.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: "unitB"}
+				left := &types.GetOutput{Tree: treeA, SampleRate: sampleRate, Units: "unitA"}
+				right := &types.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: "unitB"}
 
 				_, err := NewCombinedProfile("name", left, right, maxNodes)
 				Expect(err).To(MatchError("left units (unitA) does not match right units (unitB)"))
@@ -129,8 +129,8 @@ var _ = Describe("Diff", func() {
 
 		When("one of them is empty", func() {
 			It("does not return an error", func() {
-				left := &storage.GetOutput{Tree: treeA, SampleRate: sampleRate}
-				right := &storage.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: "unitB"}
+				left := &types.GetOutput{Tree: treeA, SampleRate: sampleRate}
+				right := &types.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: "unitB"}
 
 				_, err := NewCombinedProfile("name", left, right, maxNodes)
 				Expect(err).ToNot(HaveOccurred())
@@ -151,8 +151,8 @@ var _ = Describe("Diff", func() {
 			treeB.Insert([]byte("a;b"), uint64(4))
 			treeB.Insert([]byte("a;c"), uint64(8))
 
-			left := &storage.GetOutput{Tree: treeA, SampleRate: sampleRate, Units: units}
-			right := &storage.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: units}
+			left := &types.GetOutput{Tree: treeA, SampleRate: sampleRate, Units: units}
+			right := &types.GetOutput{Tree: treeB, SampleRate: sampleRate, Units: units}
 			p, err := NewCombinedProfile("name", left, right, maxNodes)
 			Expect(err).ToNot(HaveOccurred())
 

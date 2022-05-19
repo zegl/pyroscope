@@ -11,6 +11,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 func TestObserve(t *testing.T) {
@@ -106,7 +107,7 @@ func TestSampleUnits(t *testing.T) {
 
 	exporter, _ := NewExporter(rules, prometheus.NewRegistry())
 	k, _ := segment.ParseKey("app.name.cpu")
-	i := &storage.PutInput{Key: k, SampleRate: 100, Units: spy.ProfileCPU.Units()}
+	i := &types.PutInput{Key: k, SampleRate: 100, Units: spy.ProfileCPU.Units()}
 	o, _ := exporter.Evaluate(i)
 	createTree().Iterate(observeCallback(o))
 
@@ -136,7 +137,7 @@ func requireRuleCounterValue(t *testing.T, e *MetricsExporter, name string, k *s
 
 func observe(e *MetricsExporter, key string) *segment.Key {
 	k, _ := segment.ParseKey(key)
-	i := &storage.PutInput{Key: k, Units: spy.ProfileInuseObjects.Units()}
+	i := &types.PutInput{Key: k, Units: spy.ProfileInuseObjects.Units()}
 	if o, ok := e.Evaluate(i); ok {
 		createTree().Iterate(observeCallback(o))
 	}

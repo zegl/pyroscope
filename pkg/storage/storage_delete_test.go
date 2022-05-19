@@ -18,6 +18,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/testing"
 )
 
@@ -115,7 +116,7 @@ var _ = Describe("storage package", func() {
 				st := testing.SimpleTime(10)
 				et := testing.SimpleTime(19)
 				key, _ := segment.ParseKey(appname)
-				err := s.Put(context.TODO(), &PutInput{
+				err := s.Put(context.TODO(), &types.PutInput{
 					StartTime:  st,
 					EndTime:    et,
 					Key:        key,
@@ -201,7 +202,7 @@ var _ = Describe("storage package", func() {
 				et := testing.SimpleTime(19)
 				for _, l := range labels {
 					key, _ := segment.ParseKey(appname + l)
-					err := s.Put(context.TODO(), &PutInput{
+					err := s.Put(context.TODO(), &types.PutInput{
 						StartTime:  st,
 						EndTime:    et,
 						Key:        key,
@@ -297,7 +298,7 @@ var _ = Describe("storage package", func() {
 					et := testing.SimpleTime(19)
 					for _, l := range labels {
 						key, _ := segment.ParseKey(appname + l)
-						err := s.Put(context.TODO(), &PutInput{
+						err := s.Put(context.TODO(), &types.PutInput{
 							StartTime:  st,
 							EndTime:    et,
 							Key:        key,
@@ -428,7 +429,7 @@ var _ = Describe("storage package", func() {
 			et := testing.SimpleTime(19)
 			for _, l := range labels {
 				key, _ := segment.ParseKey(appname + l)
-				err := s.Put(context.TODO(), &PutInput{
+				err := s.Put(context.TODO(), &types.PutInput{
 					StartTime:  st,
 					EndTime:    et,
 					Key:        key,

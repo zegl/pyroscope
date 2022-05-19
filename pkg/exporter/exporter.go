@@ -12,6 +12,7 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/storage"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
 // MetricsExporter exports profiling metrics via Prometheus.
@@ -77,7 +78,7 @@ func NewExporter(rules config.MetricsExportRules, reg prometheus.Registerer) (*M
 	return &e, nil
 }
 
-func (e MetricsExporter) Evaluate(input *storage.PutInput) (storage.SampleObserver, bool) {
+func (e MetricsExporter) Evaluate(input *types.PutInput) (storage.SampleObserver, bool) {
 	if len(e.rules) == 0 {
 		return nil, false
 	}
