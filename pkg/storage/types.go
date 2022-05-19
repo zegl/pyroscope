@@ -3,65 +3,28 @@ package storage
 //revive:disable:max-public-structs TODO: we will refactor this later
 
 import (
-	"context"
-
-	"time"
-
 	"github.com/dgraph-io/badger/v2"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 	"github.com/pyroscope-io/pyroscope/pkg/util/bytesize"
 )
 
-type Putter interface {
-	Put(ctx context.Context, pi *PutInput) error
-}
-
-type Getter interface {
-	Get(ctx context.Context, gi *GetInput) (*GetOutput, error)
-}
-
-type Enqueuer interface {
-	Enqueue(ctx context.Context, input *PutInput)
-}
-
-type Merger interface {
-	MergeProfiles(ctx context.Context, mi MergeProfilesInput) (o MergeProfilesOutput, err error)
-}
-
-type GetLabelKeysByQueryInput struct {
-	StartTime time.Time
-	EndTime   time.Time
-	Query     string
-}
-
-type GetLabelKeysByQueryOutput struct {
-	Keys []string
-}
-
-type LabelsGetter interface {
-	GetKeys(ctx context.Context, cb func(string) bool)
-	GetKeysByQuery(ctx context.Context, in GetLabelKeysByQueryInput) (GetLabelKeysByQueryOutput, error)
-}
-
-type GetLabelValuesByQueryInput struct {
-	StartTime time.Time
-	EndTime   time.Time
-	Label     string
-	Query     string
-}
-
-type GetLabelValuesByQueryOutput struct {
-	Values []string
-}
-
-type LabelValuesGetter interface {
-	GetValues(ctx context.Context, key string, cb func(v string) bool)
-	GetValuesByQuery(ctx context.Context, in GetLabelValuesByQueryInput) (GetLabelValuesByQueryOutput, error)
-}
-
-type AppNameGetter interface {
-	GetAppNames(ctx context.Context) []string
-}
+type PutInput types.PutInput
+type Putter types.Putter
+type GetInput types.GetInput
+type GetOutput types.GetOutput
+type Getter types.Getter
+type Enqueuer types.Enqueuer
+type MergeProfilesInput types.MergeProfilesInput
+type MergeProfilesOutput types.MergeProfilesOutput
+type Merger types.Merger
+type GetLabelKeysByQueryInput types.GetLabelKeysByQueryInput
+type GetLabelKeysByQueryOutput types.GetLabelKeysByQueryOutput
+type LabelsGetter types.LabelsGetter
+type GetLabelValuesByQueryInput types.GetLabelValuesByQueryInput
+type GetLabelValuesByQueryOutput types.GetLabelValuesByQueryOutput
+type LabelValuesGetter types.LabelValuesGetter
+type AppNameGetter types.AppNameGetter
 
 // Other functions from storage.Storage:
 // type Backend interface {

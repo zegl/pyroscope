@@ -11,27 +11,9 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/flameql"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
-	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 )
-
-type GetInput struct {
-	StartTime time.Time
-	EndTime   time.Time
-	Key       *segment.Key
-	Query     *flameql.Query
-}
-
-type GetOutput struct {
-	Tree            *tree.Tree
-	Timeline        *segment.Timeline
-	SpyName         string
-	SampleRate      uint32
-	Count           uint64
-	Units           metadata.Units
-	AggregationType metadata.AggregationType
-}
 
 const (
 	averageAggregationType = "average"

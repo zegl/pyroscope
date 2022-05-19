@@ -9,21 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
-	"github.com/pyroscope-io/pyroscope/pkg/storage/metadata"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 )
-
-type PutInput struct {
-	StartTime       time.Time
-	EndTime         time.Time
-	Key             *segment.Key
-	Val             *tree.Tree
-	SpyName         string
-	SampleRate      uint32
-	Units           metadata.Units
-	AggregationType metadata.AggregationType
-}
 
 func (s *Storage) Put(_ context.Context, pi *PutInput) error {
 	// TODO: This is a pretty broad lock. We should find a way to make these locks more selective.
