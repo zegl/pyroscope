@@ -45,7 +45,7 @@ func (s *Storage) Get(ctx context.Context, gi *GetInput) (*GetOutput, error) {
 		return nil, fmt.Errorf("key or query must be specified")
 	}
 
-	s.getTotal.Inc()
+	s.metrics.getTotal.Inc()
 	logger.Debug("storage.Get")
 	trace.Logf(ctx, traceCatGetKey, "%+v", gi)
 

@@ -1,4 +1,8 @@
 package core
 
-type core struct {
+type Core struct {
+}
+
+func New() *Core {
+	return &Core{}
 }

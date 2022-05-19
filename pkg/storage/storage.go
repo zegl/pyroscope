@@ -30,8 +30,8 @@ type Storage struct {
 	config *Config
 	*storageOptions
 
-	logger *logrus.Logger
-	*metrics
+	logger  *logrus.Logger
+	metrics *metrics
 
 	segments   BadgerDBWithCache
 	dimensions BadgerDBWithCache

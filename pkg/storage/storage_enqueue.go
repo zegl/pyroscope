@@ -18,7 +18,7 @@ func (s *Storage) Enqueue(ctx context.Context, input *PutInput) {
 	case <-s.stop:
 	default:
 	}
-	s.discardedTotal.Inc()
+	s.metrics.discardedTotal.Inc()
 }
 
 func (s *Storage) startQueueWorkers() {

@@ -24,7 +24,7 @@ func (s *Storage) Put(_ context.Context, pi *PutInput) error {
 		return errRetention
 	}
 
-	s.putTotal.Inc()
+	s.metrics.putTotal.Inc()
 	if id, ok := pi.Key.ProfileID(); ok {
 		return s.exemplars.insert(pi.Key.AppName(), id, pi.Val, pi.EndTime)
 	}
