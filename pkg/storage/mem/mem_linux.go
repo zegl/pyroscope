@@ -1,7 +1,7 @@
 //go:build linux
 // +build linux
 
-package storage
+package mem
 
 import (
 	"io"
@@ -33,7 +33,7 @@ func getCgroupMemLimit() (uint64, error) {
 	return uint64(r), nil
 }
 
-func getMemTotal() (uint64, error) {
+func Total() (uint64, error) {
 	vm, err := mem.VirtualMemory()
 	if err != nil {
 		return 0, err

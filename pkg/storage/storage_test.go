@@ -59,7 +59,7 @@ var _ = Describe("storage package", func() {
 						SampleRate: 100,
 					})
 
-					Expect(s.Delete(context.TODO(), &DeleteInput{key})).ToNot(HaveOccurred())
+					Expect(s.Delete(context.TODO(), &types.DeleteInput{key})).ToNot(HaveOccurred())
 					gOut, err := s.Get(context.TODO(), &types.GetInput{
 						StartTime: st2,
 						EndTime:   et2,
@@ -103,7 +103,7 @@ var _ = Describe("storage package", func() {
 						SampleRate: 100,
 					})
 
-					Expect(s.Delete(context.TODO(), &DeleteInput{key})).ToNot(HaveOccurred())
+					Expect(s.Delete(context.TODO(), &types.DeleteInput{key})).ToNot(HaveOccurred())
 					s.GetValues(context.TODO(), "__name__", func(v string) bool {
 						Fail("app name label was not removed")
 						return false
@@ -144,7 +144,7 @@ var _ = Describe("storage package", func() {
 					})
 					Expect(err).ToNot(HaveOccurred())
 
-					Expect(s.Delete(context.TODO(), &DeleteInput{key})).ToNot(HaveOccurred())
+					Expect(s.Delete(context.TODO(), &types.DeleteInput{key})).ToNot(HaveOccurred())
 					s.Put(context.TODO(), &types.PutInput{
 						StartTime:  st,
 						EndTime:    et,

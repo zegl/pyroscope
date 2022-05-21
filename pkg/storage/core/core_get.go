@@ -46,7 +46,6 @@ func (s *Core) Get(ctx context.Context, gi *types.GetInput) (*types.GetOutput, e
 		return nil, fmt.Errorf("key or query must be specified")
 	}
 
-	s.metrics.getTotal.Inc()
 	logger.Debug("storage.Get")
 	trace.Logf(ctx, traceCatGetKey, "%+v", gi)
 
@@ -71,7 +70,7 @@ func (s *Core) Get(ctx context.Context, gi *types.GetInput) (*types.GetOutput, e
 				Timeline:   segment.GenerateTimeline(gi.StartTime, gi.EndTime),
 				Tree:       tree.New(),
 			}
-			err := s.exemplars.fetch(ctx, gi.Query.AppName, ids, func(t *tree.Tree) error {
+			err := s.exemplars.Fetch(ctx, gi.Query.AppName, ids, func(t *tree.Tree) error {
 				o.Tree.Merge(t)
 				return nil
 			})
@@ -150,7 +149,7 @@ func (s *Core) Get(ctx context.Context, gi *types.GetInput) (*types.GetOutput, e
 }
 
 func (s *Core) execQuery(_ context.Context, qry *flameql.Query) []dimension.Key {
-	app, found := s.lookupAppDimension(qry.AppName)
+	app, found := s.LookupAppDimension(qry.AppName)
 	if !found {
 		return nil
 	}
@@ -202,7 +201,7 @@ func (s *Core) dimensionKeysByQuery(ctx context.Context, qry *flameql.Query) fun
 
 func (s *Core) dimensionKeysByKey(key *segment.Key) func() []dimension.Key {
 	return func() []dimension.Key {
-		d, ok := s.lookupAppDimension(key.AppName())
+		d, ok := s.LookupAppDimension(key.AppName())
 		if !ok {
 			return nil
 		}
@@ -228,7 +227,8 @@ func (s *Core) dimensionKeysByKey(key *segment.Key) func() []dimension.Key {
 	}
 }
 
-func (s *Core) lookupAppDimension(app string) (*dimension.Dimension, bool) {
+// TODO: it's probably not ideal that this is public
+func (s *Core) LookupAppDimension(app string) (*dimension.Dimension, bool) {
 	return s.lookupDimensionKV("__name__", app)
 }
 

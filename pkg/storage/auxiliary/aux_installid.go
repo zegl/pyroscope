@@ -1,4 +1,4 @@
-package storage
+package auxiliary
 
 import (
 	"github.com/dgraph-io/badger/v2"
@@ -7,7 +7,7 @@ import (
 
 const installID = "installID"
 
-func (s *Storage) InstallID() string {
+func (s *Aux) InstallID() string {
 	var id []byte
 	err := s.main.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(installID))

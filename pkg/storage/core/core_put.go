@@ -18,6 +18,7 @@ func (s *Core) Put(_ context.Context, pi *types.PutInput) error {
 	// TODO: This is a pretty broad lock. We should find a way to make these locks more selective.
 	s.putMutex.Lock()
 	defer s.putMutex.Unlock()
+
 	if id, ok := pi.Key.ProfileID(); ok {
 		return s.exemplars.Insert(pi.Key.AppName(), id, pi.Val, pi.EndTime)
 	}
@@ -31,15 +32,11 @@ func (s *Core) Put(_ context.Context, pi *types.PutInput) error {
 		"aggregationType": pi.AggregationType,
 	}).Debug("storage.Put")
 
-	sk := pi.Key.SegmentKey()
-
 	for k, v := range pi.Key.Labels() {
-		err := s.labels.Put(k, v)
-		if err != nil {
-			return fmt.Errorf("failed to put labels: %w", err)
-		}
+		s.labels.Put(k, v)
 	}
 
+	sk := pi.Key.SegmentKey()
 	for k, v := range pi.Key.Labels() {
 		key := k + ":" + v
 		r, err := s.dimensions.GetOrCreate(key)
@@ -53,7 +50,7 @@ func (s *Core) Put(_ context.Context, pi *types.PutInput) error {
 
 	r, err := s.segments.GetOrCreate(sk)
 	if err != nil {
-		return fmt.Errorf("segments cache for %v: %w", sk, err)
+		return fmt.Errorf("segments cache for %v: %v", sk, err)
 	}
 
 	st := r.(*segment.Segment)

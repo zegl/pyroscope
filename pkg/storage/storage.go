@@ -14,10 +14,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/pyroscope-io/pyroscope/pkg/health"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/auxiliary"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/core"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/exemplars"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/labels"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/mem"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/migrations"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
@@ -27,7 +30,6 @@ import (
 var (
 	errRetention  = errors.New("could not write because of retention settings")
 	errOutOfSpace = errors.New("running out of space")
-	errClosed     = errors.New("storage closed")
 )
 
 type Storage struct {
@@ -37,17 +39,23 @@ type Storage struct {
 	logger  *logrus.Logger
 	metrics *metrics
 
-	segments    BadgerDBWithCache
-	dimensions  BadgerDBWithCache
-	dicts       BadgerDBWithCache
-	trees       BadgerDBWithCache
-	main        BadgerDBWithCache
-	exemplarsDb BadgerDBWithCache
+	segmentsDB   *badger.DB
+	dimensionsDB *badger.DB
+	dictsDB      *badger.DB
+	treesDB      *badger.DB
+	mainDB       *badger.DB
+	exemplarsDB  *badger.DB
+
+	segmentsCache   *cache.Cache
+	dimensionsCache *cache.Cache
+	dictsCache      *cache.Cache
+	treesCache      *cache.Cache
 
 	labels    *labels.Labels
 	exemplars *exemplars.Exemplars
 
 	core *core.Core
+	aux  *auxiliary.Aux
 
 	hc *health.Controller
 
@@ -130,30 +138,42 @@ func New(c *Config, logger *logrus.Logger, reg prometheus.Registerer, hc *health
 	s.queue = make(chan *putInputWithCtx, s.queueLen)
 
 	var err error
-	if s.main, err = c.NewBadger("main", "", nil); err != nil {
+	var mainWrapper BadgerDBWithCache
+	var dictsWrapper BadgerDBWithCache
+	var dimensionsWrapper BadgerDBWithCache
+	var segmentsWrapper BadgerDBWithCache
+	var treesWrapper BadgerDBWithCache
+	var exemplarsWrapper BadgerDBWithCache
+
+	if mainWrapper, err = c.NewBadger("main", "", nil); err != nil {
 		return nil, err
 	}
-	if s.dicts, err = c.NewBadger("dicts", prefix.DictionaryPrefix, dictionaryCodec{}); err != nil {
+	if dictsWrapper, err = c.NewBadger("dicts", prefix.DictionaryPrefix, dictionaryCodec{}); err != nil {
 		return nil, err
 	}
-	if s.dimensions, err = c.NewBadger("dimensions", prefix.DimensionPrefix, dimensionCodec{}); err != nil {
+	if dimensionsWrapper, err = c.NewBadger("dimensions", prefix.DimensionPrefix, dimensionCodec{}); err != nil {
 		return nil, err
 	}
-	if s.segments, err = c.NewBadger("segments", prefix.SegmentPrefix, segmentCodec{}); err != nil {
+	if segmentsWrapper, err = c.NewBadger("segments", prefix.SegmentPrefix, segmentCodec{}); err != nil {
 		return nil, err
 	}
-	if s.trees, err = c.NewBadger("trees", prefix.TreePrefix, treeCodec{s}); err != nil {
+	tc := treeCodec{
+		dicts:                 dictsWrapper.CacheInstance(),
+		maxNodesSerialization: s.config.maxNodesSerialization,
+	}
+	if treesWrapper, err = c.NewBadger("trees", prefix.TreePrefix, tc); err != nil {
 		return nil, err
 	}
 
-	if s.exemplarsDb, err = c.NewBadger("profiles", prefix.ExemplarDataPrefix, nil); err != nil {
+	if exemplarsWrapper, err = c.NewBadger("profiles", prefix.ExemplarDataPrefix, nil); err != nil {
 		return nil, err
 	}
 
-	s.initExemplarsStorage(s.exemplarsDb, reg)
-	s.labels = labels.New(s.main.DBInstance())
+	s.initExemplarsStorage(exemplarsWrapper, reg)
+	s.labels = labels.New(mainWrapper.DBInstance())
 
-	if err = s.migrate(); err != nil {
+	m := migrations.New(mainWrapper.DBInstance(), dictsWrapper.DBInstance())
+	if err = m.Migrate(); err != nil {
 		return nil, err
 	}
 
@@ -162,7 +182,7 @@ func New(c *Config, logger *logrus.Logger, reg prometheus.Registerer, hc *health
 
 	if !s.config.inMemory {
 		// TODO(kolesnikovae): Allow failure and skip evictionTask?
-		memTotal, err := getMemTotal()
+		memTotal, err := mem.Total()
 		if err != nil {
 			return nil, err
 		}
@@ -292,8 +312,8 @@ func (s *Storage) evictionTask(memTotal uint64) func() {
 		// It should be noted that in case of a crash or kill, data may become
 		// inconsistent: we should unite databases and do this in a tx.
 		// This is also applied to writeBack task.
-		s.trees.Evict(percent)
-		s.dicts.WriteBack()
+		s.treesCache.Evict(percent)
+		s.dictsCache.WriteBack()
 		// s.dimensions.WriteBack()
 		// s.segments.WriteBack()
 		// GC does not really release OS memory, so relying on MemStats.Alloc
@@ -354,29 +374,13 @@ func (s *Storage) retentionPolicy() *segment.RetentionPolicy {
 			s.config.retentionLevels.Two)
 }
 
-func (s *Storage) databases() []BadgerDBWithCache {
-	return []BadgerDBWithCache{
-		s.main,
-		s.dimensions,
-		s.segments,
-		s.dicts,
-		s.trees,
-		s.exemplarsDb,
+func (s *Storage) databases() []*badger.DB {
+	return []*badger.DB{
+		s.segmentsDB,
+		s.dimensionsDB,
+		s.dictsDB,
+		s.treesDB,
+		s.mainDB,
+		s.exemplarsDB,
 	}
-}
-
-func (s *Storage) SegmentsInternals() (*badger.DB, *cache.Cache) {
-	return s.segments.DBInstance(), s.segments.CacheInstance()
-}
-func (s *Storage) DimensionsInternals() (*badger.DB, *cache.Cache) {
-	return s.dimensions.DBInstance(), s.dimensions.CacheInstance()
-}
-func (s *Storage) DictsInternals() (*badger.DB, *cache.Cache) {
-	return s.dicts.DBInstance(), s.dicts.CacheInstance()
-}
-func (s *Storage) TreesInternals() (*badger.DB, *cache.Cache) {
-	return s.trees.DBInstance(), s.trees.CacheInstance()
-}
-func (s *Storage) MainInternals() (*badger.DB, *cache.Cache) {
-	return s.main.DBInstance(), s.main.CacheInstance()
 }

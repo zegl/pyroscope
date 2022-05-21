@@ -100,3 +100,8 @@ type LabelValuesGetter interface {
 type AppNameGetter interface {
 	GetAppNames(ctx context.Context) []string
 }
+
+type DeleteInput struct {
+	// Key must match exactly one segment.
+	Key *segment.Key
+}

@@ -1,4 +1,4 @@
-package storage
+package core
 
 import (
 	"context"
@@ -6,18 +6,14 @@ import (
 
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/types"
 )
 
-type DeleteInput struct {
-	// Key must match exactly one segment.
-	Key *segment.Key
-}
-
-func (s *Storage) Delete(_ context.Context, di *DeleteInput) error {
+func (s *Core) Delete(_ context.Context, di *types.DeleteInput) error {
 	return s.deleteSegmentAndRelatedData(di.Key)
 }
 
-func (s *Storage) deleteSegmentAndRelatedData(k *segment.Key) error {
+func (s *Core) deleteSegmentAndRelatedData(k *segment.Key) error {
 	sk := k.SegmentKey()
 	if err := s.trees.DiscardPrefix(sk); err != nil {
 		return err
@@ -49,7 +45,7 @@ func (s *Storage) deleteSegmentAndRelatedData(k *segment.Key) error {
 // It does so by deleting Segments, Dictionaries, Trees, Dimensions and Labels
 // It's an idempotent call, ie. if the app already does not exist, no error is triggered.
 // TODO cancelation?
-func (s *Storage) DeleteApp(_ context.Context, appname string) error {
+func (s *Core) DeleteApp(_ context.Context, appname string) error {
 	/***********************************/
 	/*      V a l i d a t i o n s      */
 	/***********************************/
@@ -124,7 +120,7 @@ func (s *Storage) DeleteApp(_ context.Context, appname string) error {
 	//   foo=bar
 	//     my_another_application{foo=bar}
 	s.logger.Debugf("looking for app dimension '%s'\n", appname)
-	d, ok := s.lookupAppDimension(appname)
+	d, ok := s.LookupAppDimension(appname)
 	if !ok {
 		// Technically this does not necessarily mean the dimension does not exist
 		// Since this could be triggered by an error

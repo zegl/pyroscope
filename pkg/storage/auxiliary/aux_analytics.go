@@ -1,4 +1,4 @@
-package storage
+package auxiliary
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 
 const analyticsKey = "analytics"
 
-func (s *Storage) SaveAnalytics(a interface{}) error {
+func (s *Aux) SaveAnalytics(a interface{}) error {
 	v, err := json.Marshal(a)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func (s *Storage) SaveAnalytics(a interface{}) error {
 	})
 }
 
-func (s *Storage) LoadAnalytics(a interface{}) error {
+func (s *Aux) LoadAnalytics(a interface{}) error {
 	err := s.main.View(func(txn *badger.Txn) error {
 		v, err := txn.Get([]byte(analyticsKey))
 		if err != nil {

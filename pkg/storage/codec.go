@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/pyroscope-io/pyroscope/pkg/storage/cache"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dict"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/dimension"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/tree"
 )
 
-type treeCodec struct{ *Storage }
+type treeCodec struct {
+	dicts                 *cache.Cache
+	maxNodesSerialization int
+}
 
 func (treeCodec) New(_ string) interface{} { return tree.New() }
 
@@ -20,7 +24,7 @@ func (c treeCodec) Serialize(w io.Writer, k string, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = v.(*tree.Tree).SerializeTruncate(d.(*dict.Dict), c.config.maxNodesSerialization, w)
+	err = v.(*tree.Tree).SerializeTruncate(d.(*dict.Dict), c.maxNodesSerialization, w)
 	if err != nil {
 		return err
 	}

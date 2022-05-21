@@ -1,4 +1,4 @@
-package storage
+package auxiliary
 
 import (
 	"crypto/rand"
@@ -12,7 +12,7 @@ const (
 	jwtSecret = "jwtSecret"
 )
 
-func (s *Storage) JWT() (string, error) {
+func (s *Aux) JWT() (string, error) {
 	var secret []byte
 	err := s.main.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(jwtSecret))

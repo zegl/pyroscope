@@ -32,11 +32,11 @@ func (s *Storage) Cleanup(ctx context.Context) error {
 }
 
 func (s *Storage) cleanupTreesDB(ctx context.Context) (err error) {
-	batch := s.trees.NewWriteBatch()
+	batch := s.treesDB.NewWriteBatch()
 	defer func() {
 		err = batch.Flush()
 	}()
-	return s.trees.Update(func(txn *badger.Txn) error {
+	return s.treesDB.Update(func(txn *badger.Txn) error {
 		it := txn.NewIterator(badger.IteratorOptions{Prefix: prefix.TreePrefix.Bytes()})
 		defer it.Close()
 		var c int64
@@ -54,11 +54,11 @@ func (s *Storage) cleanupTreesDB(ctx context.Context) (err error) {
 					continue
 				}
 			}
-			if c == s.trees.MaxBatchCount()+1 {
+			if c == s.treesDB.MaxBatchCount()+1 {
 				if err = batch.Flush(); err != nil {
 					return err
 				}
-				batch = s.trees.NewWriteBatch()
+				batch = s.treesDB.NewWriteBatch()
 				c = 0
 			}
 			if err = batch.Delete(item.KeyCopy(nil)); err != nil {

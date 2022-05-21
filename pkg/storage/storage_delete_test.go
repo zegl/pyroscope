@@ -52,7 +52,7 @@ var _ = Describe("storage package", func() {
 		}
 
 		checkDimensionsPresence := func(appname string, presence bool) interface{} {
-			d, ok := s.lookupAppDimension(appname)
+			d, ok := s.LookupAppDimension(appname)
 			if presence {
 				Expect(ok).To(BeTrue())
 			} else {

@@ -1,9 +1,6 @@
-package storage
+package migrations
 
 import (
-	"errors"
-	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/dgraph-io/badger/v2"
@@ -12,61 +9,6 @@ import (
 	"github.com/pyroscope-io/pyroscope/pkg/storage/prefix"
 	"github.com/pyroscope-io/pyroscope/pkg/storage/segment"
 )
-
-var migrations = []migration{
-	migrateDictionaryKeys,
-}
-
-type migration func(*Storage) error
-
-const dbVersionKey = "db-version"
-
-func (s *Storage) migrate() error {
-	ver, err := s.dbVersion()
-	if err != nil {
-		return err
-	}
-	switch {
-	case ver == len(migrations):
-		return nil
-	case ver > len(migrations):
-		return fmt.Errorf("db version %d: future versions are not supported", ver)
-	}
-	for v, m := range migrations[ver:] {
-		if err = m(s); err != nil {
-			return fmt.Errorf("migration %d: %w", v, err)
-		}
-	}
-	return s.setDbVersion(len(migrations))
-}
-
-// dbVersion returns the number of migrations applied to the storage.
-func (s *Storage) dbVersion() (int, error) {
-	var version int
-	err := s.main.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte(dbVersionKey))
-		if err != nil {
-			return err
-		}
-		return item.Value(func(val []byte) error {
-			version, err = strconv.Atoi(string(val))
-			return err
-		})
-	})
-	if errors.Is(err, badger.ErrKeyNotFound) {
-		return 0, nil
-	}
-	return version, err
-}
-
-func (s *Storage) setDbVersion(v int) error {
-	return s.main.Update(func(txn *badger.Txn) error {
-		return txn.SetEntry(&badger.Entry{
-			Key:   []byte(dbVersionKey),
-			Value: []byte(strconv.Itoa(v)),
-		})
-	})
-}
 
 // In 0.0.34 we changed dictionary key format from normalized segment key
 // (e.g, app.name{foo=bar}) to just app name. See e756a200a for details.
@@ -83,7 +25,7 @@ func (s *Storage) setDbVersion(v int) error {
 //  * > 0.0.33:
 //  	No impact. Data ingested prior to the update to 0.0.34/0.0.35 is
 //  	corrupted, which results in "label not found" nodes.
-func migrateDictionaryKeys(s *Storage) error {
+func migrateDictionaryKeys(s *Migrations) error {
 	appNameKeys := map[string]struct{}{}
 	segmentNameKeys := map[string][]byte{}
 	return s.dicts.Update(func(txn *badger.Txn) error {

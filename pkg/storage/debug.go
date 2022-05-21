@@ -20,16 +20,16 @@ func (s *Storage) DebugExport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	n := mux.Vars(r)["db"]
-	var d BadgerDBWithCache
+	var d *badger.DB
 	switch n {
 	case "segments":
-		d = s.segments
+		d = s.segmentsDB
 	case "trees":
-		d = s.trees
+		d = s.treesDB
 	case "dicts":
-		d = s.dicts
+		d = s.dictsDB
 	case "dimensions":
-		d = s.dimensions
+		d = s.dimensionsDB
 	default:
 		// Note that export from main DB is not allowed.
 		http.Error(w, fmt.Sprintf("database %q not found", n), http.StatusNotFound)
