@@ -16,6 +16,7 @@ import (
 	_ "github.com/pyroscope-io/pyroscope/pkg/scrape/discovery/file"
 	_ "github.com/pyroscope-io/pyroscope/pkg/scrape/discovery/http"
 	_ "github.com/pyroscope-io/pyroscope/pkg/scrape/discovery/kubernetes"
+	"github.com/pyroscope-io/pyroscope/pkg/storage/remote"
 
 	adhocserver "github.com/pyroscope-io/pyroscope/pkg/adhoc/server"
 	"github.com/pyroscope-io/pyroscope/pkg/admin"
@@ -142,9 +143,17 @@ func newServerService(c *config.Server) (*serverService, error) {
 		return nil, fmt.Errorf("new metric exporter: %w", err)
 	}
 
-	svc.ingestionQueue = storage.NewIngestionQueue(svc.logger, svc.storage, prometheus.DefaultRegisterer,
+	// TODO(eh-am): instantiate this dynamically
+	remoteWriter := remote.NewRemoteWriter(svc.logger)
+	storageOrchestrator := remote.NewStorageOrchestrator(svc.logger, remoteWriter, svc.storage)
+	//storageOrchestrator := remote.NewStorageOrchestrator(svc.logger, svc.storage)
+
+	svc.ingestionQueue = storage.NewIngestionQueue(svc.logger, storageOrchestrator, prometheus.DefaultRegisterer,
 		ingestionQueueWorkers,
 		ingestionQueueSize)
+	//	svc.ingestionQueue = storage.NewIngestionQueue(svc.logger, svc.storage, prometheus.DefaultRegisterer,
+	//		ingestionQueueWorkers,
+	//		ingestionQueueSize)
 
 	svc.debugReporter = debug.NewReporter(svc.logger, svc.storage, prometheus.DefaultRegisterer)
 	svc.directUpstream = direct.New(svc.ingestionQueue, metricsExporter)
