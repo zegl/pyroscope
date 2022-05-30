@@ -16,3 +16,11 @@ const (
 	AverageAggregationType AggregationType = "average"
 	SumAggregationType     AggregationType = "sum"
 )
+
+func (a AggregationType) String() string {
+	return a.String()
+}
+
+func (u Units) String() string {
+	return u.String()
+}
