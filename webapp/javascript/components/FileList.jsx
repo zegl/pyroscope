@@ -57,7 +57,7 @@ function FileList(props) {
         );
         break;
       default:
-        sorted = [];
+        sorted = filesInfo;
     }
 
     return sorted.reduce((acc, { id }) => [...acc, id], []);
