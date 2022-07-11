@@ -28,6 +28,7 @@
 <kbd>[<img title="中文 (Simplified)" alt="中文 (Simplified)" src="https://cdn.staticaly.com/gh/hjnilsson/country-flags/master/svg/cn.svg" width="22">](translations/README.ch.md)</kbd>
 
 ### What is Pyroscope?
+
 Pyroscope is an open source continuous profiling platform. It will help you:
 * Find performance issues and bottlenecks in your code
 * Resolve issues with high CPU utilization
@@ -48,6 +49,7 @@ Pyroscope is an open source continuous profiling platform. It will help you:
 * Snappy UI
 
 ## Add Pyroscope Server locally in 2 steps:
+
 Pyroscope supports all major architectures and is very easy to install. for example here is how you install on a mac:
 ```shell
 # install pyroscope
@@ -57,6 +59,7 @@ brew install pyroscope-io/brew/pyroscope
 pyroscope server
 ```
 ## Send data to server via Pyroscope agent (language specific)
+
 For more documentation on how to add the Pyroscope agent to your code see the [agent documentation](https://pyroscope.io/docs/agent-overview) on our website or find language specific examples and documentation below
 <table>
    <tr>
@@ -115,16 +118,19 @@ For more documentation on how to add the Pyroscope agent to your code see the [a
    </tr>
 </table>
 
-## Third Party Integrations
-- [Grafana Plugin](https://github.com/pyroscope-io/pyroscope/tree/main/examples/grafana-integration)
-- [Jaeger UI](https://github.com/pyroscope-io/jaeger-ui)
-- [OTel Golang (tracing)](https://github.com/pyroscope-io/otelpyroscope)
-
 ## Deployment Diagram
 
 ![agent_server_diagram_11-01](https://user-images.githubusercontent.com/23323466/178165230-a94e1ee2-9725-4752-97ff-542158d1b703.svg)
 
+## Third-Party Integrations
+
+Pyroscope also supports several third-party integrations notably:
+- [Grafana Plugin](https://github.com/pyroscope-io/pyroscope/tree/main/examples/grafana-integration)
+- [Jaeger UI](https://github.com/pyroscope-io/jaeger-ui)
+- [OTel Golang (tracing)](https://github.com/pyroscope-io/otelpyroscope)
+
 ## Documentation
+
 For more information on how to use Pyroscope with other programming languages, install it on Linux, or use it in production environment, check out our documentation:
 
 * [Public Roadmap](https://github.com/pyroscope-io/pyroscope/projects/1)
