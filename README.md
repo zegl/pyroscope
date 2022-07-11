@@ -57,6 +57,7 @@ brew install pyroscope-io/brew/pyroscope
 pyroscope server
 ```
 ## Send data to server via Pyroscope agent (language specific)
+For more documentation on how to add the Pyroscope agent to your code see the [agent documentation](https://pyroscope.io/docs/agent-overview) on our website or find language specific examples and documentation below
 <table>
    <tr>
       <td align="center"><a href="https://pyroscope.io/"><img src="https://user-images.githubusercontent.com/23323466/178160549-2d69a325-56ec-4e19-bca7-d460d400b163.png" width="100px;" alt=""/><br />
@@ -106,34 +107,22 @@ pyroscope server
           <a href="https://pyroscope.io/docs/php" title="Documentation">Documentation</a><br />
           <a href="https://github.com/pyroscope-io/pyroscope/tree/main/examples/php" title="examples">Examples</a>
       </td>
+      <td align="center"><a href="https://pyroscope.io/"><img src="https://user-images.githubusercontent.com/23323466/178160552-7aabf63a-b129-404d-8c62-16dedfefe32c.png" width="100px;" alt=""/><br />
+        <b>PHP</b></a><br />
+          <a href="https://pyroscope.io/docs/php" title="Documentation">Documentation</a><br />
+          <a href="https://github.com/pyroscope-io/pyroscope/tree/main/examples/php" title="examples">Examples</a>
+      </td>
    </tr>
 </table>
 
-For more documentation on how to add the Pyroscope agent to your code see the [agent documentation](https://pyroscope.io/docs/agent-overview) on our website.
-- [Golang Agent (Push)](https://pyroscope.io/docs/golang)
-- [Golang Agent (Pull)](https://pyroscope.io/docs/golang-pull-mode/)
-- [Python Agent (pip)](https://pyroscope.io/docs/python)
-- [Ruby Agent (gem)](https://pyroscope.io/docs/ruby)
-- [Rust Agent (cargo)](https://pyroscope.io/docs/rust)
-- [eBPF Agent](https://pyroscope.io/docs/ebpf)
-- [PHP Agent](https://pyroscope.io/docs/php)
-- [.NET Agent](https://pyroscope.io/docs/dotnet)
-
-## Example Code
-We also have language-specific examples (using Docker) of how to run the *server and agent together*
-- [Golang Push Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/golang-push)
-- [Golang Pull Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/golang-pull/static)
-- [Python Pip Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/python)
-- [Ruby Gem Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/ruby)
-- [Rust Cargo Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/rust)
-- [Grafana Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/grafana-integration)
-- [Java Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/java)
-- [PHP example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/php)
-- [.NET Example](https://github.com/pyroscope-io/pyroscope/tree/main/examples/dotnet)
+## Third Party Integrations
+- [Grafana Plugin](https://github.com/pyroscope-io/pyroscope/tree/main/examples/grafana-integration)
+- [Jaeger UI](https://github.com/pyroscope-io/jaeger-ui)
+- [OTel Golang (tracing)](https://github.com/pyroscope-io/otelpyroscope)
 
 ## Deployment Diagram
 
-![agent_server_diagram_10](https://user-images.githubusercontent.com/23323466/153685751-0aac3cd6-bbc1-4ab4-8350-8f4dc7f7c193.svg)
+![agent_server_diagram_11-01](https://user-images.githubusercontent.com/23323466/178165230-a94e1ee2-9725-4752-97ff-542158d1b703.svg)
 
 ## Documentation
 For more information on how to use Pyroscope with other programming languages, install it on Linux, or use it in production environment, check out our documentation:
