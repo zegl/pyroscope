@@ -110,10 +110,10 @@ For more documentation on how to add the Pyroscope agent to your code see the [a
           <a href="https://pyroscope.io/docs/php" title="Documentation">Documentation</a><br />
           <a href="https://github.com/pyroscope-io/pyroscope/tree/main/examples/php" title="examples">Examples</a>
       </td>
-      <td align="center"><a href="https://pyroscope.io/"><img src="https://user-images.githubusercontent.com/23323466/178160552-7aabf63a-b129-404d-8c62-16dedfefe32c.png" width="100px;" alt=""/><br />
-        <b>PHP</b></a><br />
-          <a href="https://pyroscope.io/docs/php" title="Documentation">Documentation</a><br />
-          <a href="https://github.com/pyroscope-io/pyroscope/tree/main/examples/php" title="examples">Examples</a>
+      <td align="center"><a href="https://pyroscope.io/"><img src="https://user-images.githubusercontent.com/23323466/178341477-c4ad2445-c90e-4ef9-b7f9-b6b3cf615e33.png" width="100px;" alt=""/><br />
+        <b>Grafana</b></a><br />
+          <a href="https://pyroscope.io/docs/grafana-plugins/" title="Documentation">Documentation</a><br />
+          <a href="https://github.com/pyroscope-io/pyroscope/tree/main/examples/grafana-integration" title="examples">Examples</a>
       </td>
    </tr>
 </table>
