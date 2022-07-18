@@ -22,6 +22,7 @@ import AdhocDiff from './pages/AdhocDiff';
 import ServiceDiscoveryApp from './pages/ServiceDiscovery';
 import ServerNotifications from './components/ServerNotifications';
 import Protected from './components/Protected';
+import TracePage from './pages/Trace';
 // since this style is practically all pages
 
 import SignInPage from './pages/IntroPages/SignIn';
@@ -71,6 +72,13 @@ function App() {
               <Continuous>
                 <ContinuousDiffView />
               </Continuous>
+            </Protected>
+          </Route>
+          <Route path={PAGES.TRACE}>
+            <Protected>
+              {/* <Continuous> */}
+              <TracePage />
+              {/* </Continuous> */}
             </Protected>
           </Route>
           <Route path={PAGES.SETTINGS}>

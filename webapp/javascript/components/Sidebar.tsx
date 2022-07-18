@@ -11,6 +11,8 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
 import { faHandPointRight } from '@fortawesome/free-solid-svg-icons/faHandPointRight';
 import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
+import { faDatabase } from '@fortawesome/free-solid-svg-icons/faDatabase';
+import { faAlignRight } from '@fortawesome/free-solid-svg-icons/faAlignRight';
 import Sidebar, {
   MenuItem,
   SidebarHeader,
@@ -79,6 +81,7 @@ export function SidebarComponent() {
           PAGES.ADHOC_SINGLE,
           PAGES.ADHOC_COMPARISON,
           PAGES.ADHOC_COMPARISON_DIFF,
+          PAGES.TRACE,
         ] as string[]
       ).includes(pathname) || pathname.startsWith(PAGES.SETTINGS),
     [pathname]
@@ -99,6 +102,7 @@ export function SidebarComponent() {
     isRouteActive(PAGES.ADHOC_COMPARISON) ||
     isRouteActive(PAGES.ADHOC_COMPARISON_DIFF);
   const isSettingsActive = isRouteActive(PAGES.SETTINGS);
+  const isTracingActive = isRouteActive(PAGES.TRACE);
 
   const adhoc = (
     <SubMenu
@@ -207,6 +211,28 @@ export function SidebarComponent() {
             </MenuItem>
           </SubMenu>
           {isAdhocUIEnabled && adhoc}
+          <SubMenu
+            title="Tracing"
+            icon={<Icon icon={faDatabase} />}
+            active={isTracingActive}
+            defaultOpen={isTracingActive}
+            data-testid="sidebar-tracing"
+          >
+            <MenuItem
+              data-testid="sidebar-continuous-comparison"
+              active={isRouteActive(PAGES.TRACE)}
+              icon={<Icon icon={faAlignRight} />}
+            >
+              Trace
+              <NavLink
+                to={{
+                  pathname: `${PAGES.TRACE}/1158f70ebb2bc1fb5084852761cecaae`,
+                  search,
+                }}
+                exact
+              />
+            </MenuItem>
+          </SubMenu>
         </Menu>
       </SidebarContent>
       <SidebarFooter>
