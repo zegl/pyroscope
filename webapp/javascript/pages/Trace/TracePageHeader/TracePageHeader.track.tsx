@@ -38,5 +38,5 @@ export const trackStatisticsView = () =>
 export const trackTraceSpansView = () =>
   trackEvent(CATEGORY_ALT_VIEW, ACTION_TRACE_SPANS_VIEW);
 
-export const trackSlimHeaderToggle = (isOpen: boolean) =>
-  trackEvent(CATEGORY_SLIM_HEADER, getToggleValue(isOpen));
+// export const trackSlimHeaderToggle = (isOpen: boolean) =>
+//   trackEvent(CATEGORY_SLIM_HEADER, getToggleValue(isOpen));

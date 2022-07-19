@@ -25,6 +25,8 @@ import {
 } from '../../types';
 import { Span, Trace } from '../../types/trace';
 
+import './index.css';
+
 const DEFAULT_HEIGHT = 60;
 const TIMELINE_TICK_INTERVAL = 4;
 

@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+/* eslint-disable jsx-a11y/anchor-is-valid, react/jsx-props-no-spreading */
 import * as React from 'react';
-import { Button, Input } from 'antd';
+// import { Button, Input } from 'antd';
 import _get from 'lodash/get';
 import _maxBy from 'lodash/maxBy';
 import _values from 'lodash/values';
@@ -30,8 +30,8 @@ import {
   TUpdateViewRangeTimeFunction,
   IViewRange,
   ViewRangeTimeUpdate,
-  ETraceViewType,
-  TNil,
+  // ETraceViewType,
+  // TNil,
 } from '../types';
 import LabeledList from '../common/LabeledList';
 // import NewWindowIcon from '../common/NewWindowIcon';
@@ -46,26 +46,26 @@ import './TracePageHeader.css';
 
 type TracePageHeaderEmbedProps = {
   canCollapse: boolean;
-  clearSearch: () => void;
-  focusUiFindMatches: () => void;
+  // clearSearch: () => void;
+  // focusUiFindMatches: () => void;
   hideMap: boolean;
   hideSummary: boolean;
-  linkToStandalone: string;
-  nextResult: () => void;
-  onArchiveClicked: () => void;
+  // linkToStandalone: string;
+  // nextResult: () => void;
+  // onArchiveClicked: () => void;
   onSlimViewClicked: () => void;
-  onTraceViewChange: (viewType: ETraceViewType) => void;
-  prevResult: () => void;
-  resultCount: number;
-  showArchiveButton: boolean;
-  showShortcutsHelp: boolean;
-  showStandaloneLink: boolean;
-  showViewOptions: boolean;
+  // onTraceViewChange: (viewType: ETraceViewType) => void;
+  // prevResult: () => void;
+  // resultCount: number;
+  // showArchiveButton: boolean;
+  // showShortcutsHelp: boolean;
+  // showStandaloneLink: boolean;
+  // showViewOptions: boolean;
   slimView: boolean;
-  textFilter: string | TNil;
-  toSearch: string | null;
+  // textFilter: string | TNil;
+  // toSearch: string | null;
   trace: Trace;
-  viewType: ETraceViewType;
+  // viewType: ETraceViewType;
   updateNextViewRangeTime: (update: ViewRangeTimeUpdate) => void;
   updateViewRangeTime: TUpdateViewRangeTimeFunction;
   viewRange: IViewRange;
@@ -115,31 +115,31 @@ export const HEADER_ITEMS = [
 ];
 
 export function TracePageHeaderFn(
-  props: TracePageHeaderEmbedProps & { forwardedRef: React.Ref<Input> }
+  props: TracePageHeaderEmbedProps & { forwardedRef: React.Ref<ShamefulAny> }
 ) {
   const {
     canCollapse,
-    clearSearch,
-    focusUiFindMatches,
-    forwardedRef,
+    // clearSearch,
+    // focusUiFindMatches,
+    // forwardedRef,
     hideMap,
     hideSummary,
-    linkToStandalone,
-    nextResult,
-    onArchiveClicked,
+    // linkToStandalone,
+    // nextResult,
+    // onArchiveClicked,
     onSlimViewClicked,
-    onTraceViewChange,
-    prevResult,
-    resultCount,
-    showArchiveButton,
-    showShortcutsHelp,
-    showStandaloneLink,
-    showViewOptions,
+    // onTraceViewChange,
+    // prevResult,
+    // resultCount,
+    // showArchiveButton,
+    // showShortcutsHelp,
+    // showStandaloneLink,
+    // showViewOptions,
     slimView,
-    textFilter,
-    toSearch,
+    // textFilter,
+    // toSearch,
     trace,
-    viewType,
+    // viewType,
     updateNextViewRangeTime,
     updateViewRangeTime,
     viewRange,
@@ -173,18 +173,14 @@ export function TracePageHeaderFn(
   return (
     <header className="TracePageHeader">
       <div className="TracePageHeader--titleRow">
-        {/* {toSearch && (
-          <Link className="TracePageHeader--back" to={toSearch}>
-            <IoAndroidArrowBack />
-          </Link>
-        )} */}
-        {/* {links && links.length > 0 && <ExternalLinks links={links} />} */}
         {canCollapse ? (
           <a
             className="TracePageHeader--titleLink"
             onClick={onSlimViewClicked}
             role="switch"
             aria-checked={!slimView}
+            tabIndex={0}
+            aria-hidden
           >
             <MdKeyboardArrowRight
               className={`TracePageHeader--detailToggle ${
@@ -254,7 +250,7 @@ export function TracePageHeaderFn(
 }
 
 export default React.forwardRef(
-  (props: TracePageHeaderEmbedProps, ref: React.Ref<Input>) => (
+  (props: TracePageHeaderEmbedProps, ref: React.Ref<ShamefulAny>) => (
     <TracePageHeaderFn {...props} forwardedRef={ref} />
   )
 );

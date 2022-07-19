@@ -489,17 +489,13 @@ export class VirtualizedTraceViewImpl extends React.Component<VirtualizedTraceVi
   }
 
   render() {
-    console.log('this.props', this.props);
-
     return (
       <div className="VirtualizedTraceView--spans">
-        <div>ListView</div>
         <ListView
           ref={this.setListView}
           dataLength={this.getRowStates().length}
           itemHeightGetter={this.getRowHeight}
           itemRenderer={this.renderRow}
-          // itemRenderer={() => null}
           viewBuffer={300}
           viewBufferMin={100}
           itemsWrapperClassName="VirtualizedTraceView--rowsWrapper"
@@ -518,13 +514,7 @@ function mapStateToProps(
 ): TTraceTimeline & TExtractUiFindFromStateReturn {
   return {
     ...extractUiFindFromState(state),
-    // ...state.traceTimeline,
-    childrenHiddenIDs: new Set(),
-    detailStates: new Map(),
-    hoverIndentGuideIds: new Set(),
-    shouldScrollToFirstUiFindMatch: false,
-    spanNameColumnWidth: 0.25,
-    traceID: 'ede92b866598a991917a31c9ea61046f',
+    ...state.traceTimeline,
   };
 }
 

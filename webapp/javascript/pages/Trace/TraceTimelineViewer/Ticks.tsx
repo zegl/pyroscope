@@ -15,7 +15,7 @@
 import * as React from 'react';
 
 import { formatDuration } from './utils';
-import { TNil } from '../../../types';
+import { TNil } from '../types';
 
 import './Ticks.css';
 

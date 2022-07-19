@@ -19,19 +19,19 @@ limitations under the License.
 }
 
 .TracePageHeader > :nth-child(2) {
-  background-color: #eee;
+  /* background-color: #eee; */
   border-bottom: 1px solid #e4e4e4;
 }
 
 .TracePageHeader > :last-child {
-  background-color: #f8f8f8;
+  /* background-color: #f8f8f8; */
   border-bottom: 1px solid #ccc;
 }
 
 /* boost the specificity for cases with only one row -- bg should be white */
 .TracePageHeader > .TracePageHeader--titleRow {
   align-items: center;
-  background-color: #fff;
+  /* background-color: #fff; */
   display: flex;
 }
 
@@ -58,6 +58,7 @@ limitations under the License.
   color: var(--tx-color-title);
   display: flex;
   flex: 1;
+  cursor: pointer;
 }
 
 .TracePageHeader--titleLink:hover * {

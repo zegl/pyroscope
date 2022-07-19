@@ -125,7 +125,7 @@ const fullActions = createActions<TActionTypes>({
   }),
 });
 
-export const actions = (fullActions as any).jaegerUi
+export const actions = fullActions.jaegerUi
   .traceTimelineViewer as TTimelineViewerActions;
 
 function calculateFocusedFindRowStates(

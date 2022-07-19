@@ -24,6 +24,7 @@ import continuousReducer, {
 } from './reducers/continuous';
 import serviceDiscoveryReducer from './reducers/serviceDiscovery';
 import uiStore, { persistConfig as uiPersistConfig } from './reducers/ui';
+import traceTimeline from '../pages/Trace/TraceTimelineViewer/duck';
 
 const reducer = combineReducers({
   root: rootReducer,
@@ -32,6 +33,7 @@ const reducer = combineReducers({
   serviceDiscovery: serviceDiscoveryReducer,
   ui: persistReducer(uiPersistConfig, uiStore),
   continuous: continuousReducer,
+  traceTimeline,
 });
 
 // Most times we will display a (somewhat) user friendly message toast

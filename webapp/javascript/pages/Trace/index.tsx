@@ -15,7 +15,10 @@ import {
   TNil,
 } from './types';
 import TraceTimelineViewer from './TraceTimelineViewer';
+import ScrollManager from './ScrollManager';
+import { cancel as cancelScroll, scrollBy, scrollTo } from './scroll-page';
 
+// import 'antd/dist/antd.css';
 type TProps = TDispatchProps & TOwnProps & TReduxProps;
 
 type TState = {
@@ -43,7 +46,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
     const { embedded, trace } = props;
 
     this.state = {
-      headerHeight: 100,
+      headerHeight: null,
       slimView: Boolean(embedded && embedded.timeline.collapseTitle),
       viewType: ETraceViewType.TraceTimelineViewer,
       viewRange: {
@@ -63,7 +66,27 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
           'data.spans.length'
         )}`
     );
+    this._scrollManager = new ScrollManager(mockData && mockData.data, {
+      scrollBy,
+      scrollTo,
+    });
   }
+
+  // componentDidMount() {
+  // const { id, trace } = this.props;
+
+  // this._scrollManager.setTrace(trace && trace.data);
+
+  // this.setHeaderHeight(this._headerElm);
+  // if (!trace) {
+  //   this.ensureTraceFetched();
+  //   return;
+  // }
+  // if (prevID !== id) {
+  //   this.updateViewRangeTime(0, 1);
+  //   this.clearSearch();
+  // }
+  // }
 
   setHeaderHeight = (elm: HTMLElement | TNil) => {
     this._headerElm = elm;
@@ -74,6 +97,33 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
     } else if (this.state.headerHeight) {
       this.setState({ headerHeight: null });
     }
+  };
+
+  toggleSlimView = () => {
+    const { slimView } = this.state;
+    this.setState({ slimView: !slimView });
+  };
+
+  updateViewRangeTime: TUpdateViewRangeTimeFunction = (
+    start: number,
+    end: number,
+    trackSrc?: string
+  ) => {
+    // if (trackSrc) {
+    //   trackRange(trackSrc, [start, end], this.state.viewRange.time.current);
+    // }
+    const current: [number, number] = [start, end];
+    const time = { current };
+    this.setState((state: TState) => ({
+      viewRange: { ...state.viewRange, time },
+    }));
+  };
+
+  updateNextViewRangeTime = (update: ViewRangeTimeUpdate) => {
+    this.setState((state: TState) => {
+      const time = { ...state.viewRange.time, ...update };
+      return { viewRange: { ...state.viewRange, time } };
+    });
   };
 
   render() {
@@ -125,7 +175,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
       linkToStandalone: '', // getUrl(id),
       // nextResult: this.nextResult,
       // onArchiveClicked: this.archiveTrace,
-      // onSlimViewClicked: this.toggleSlimView,
+      onSlimViewClicked: this.toggleSlimView,
       // onTraceViewChange: this.setTraceView,
       // prevResult: this.prevResult,
       ref: this._searchBar,
@@ -136,31 +186,35 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
       showViewOptions: !isEmbedded,
       toSearch: null,
       trace: mockData.data,
-      updateNextViewRangeTime: () => {}, // this.updateNextViewRangeTime,
-      updateViewRangeTime: () => {}, // this.updateViewRangeTime,
+      updateNextViewRangeTime: this.updateNextViewRangeTime,
+      updateViewRangeTime: this.updateViewRangeTime,
     };
 
     const view = (
       <TraceTimelineViewer
-        registerAccessors={() => {}}
-        scrollToFirstVisibleSpan={() => {}}
+        registerAccessors={this._scrollManager.setAccessors}
+        scrollToFirstVisibleSpan={this._scrollManager.scrollToFirstVisibleSpan}
         findMatchesIDs={spanFindMatches}
         trace={mockData.data}
-        updateNextViewRangeTime={() => {}}
-        updateViewRangeTime={() => {}}
+        updateNextViewRangeTime={this.updateNextViewRangeTime}
+        updateViewRangeTime={this.updateViewRangeTime}
         viewRange={viewRange}
       />
-      // <div>123</div>
     );
+
     return (
-      <div>
+      <>
         <div className="Tracepage--headerSection" ref={this.setHeaderHeight}>
           <TracePageHeader {...headerProps} />
         </div>
         {headerHeight ? (
-          <section style={{ paddingTop: headerHeight }}>{view}</section>
+          <section
+          // style={{ paddingTop: headerHeight }}
+          >
+            {view}
+          </section>
         ) : null}
-      </div>
+      </>
     );
   }
 }

@@ -22,6 +22,8 @@ limitations under the License.
 
 .LabeledList--item {
   display: inline-block;
+  font-size: 14px;
+  margin-right: 15px;
 }
 
 .LabeledList--label {
