@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import React from 'react';
-import { Divider } from 'antd';
 
 import AccordianKeyValues from './AccordianKeyValues';
 import AccordianLogs from './AccordianLogs';
@@ -42,6 +41,8 @@ type SpanDetailProps = {
   referencesToggle: (spanID: string) => void;
   focusSpan: (uiFind: string) => void;
 };
+
+const Divider = () => <div className="SpanDetail--divider" />;
 
 export default function SpanDetail(props: SpanDetailProps) {
   const {
@@ -104,7 +105,7 @@ export default function SpanDetail(props: SpanDetailProps) {
           items={overviewItems}
         />
       </div>
-      <Divider className="SpanDetail--divider ub-my1" />
+      <Divider />
       <div>
         <div>
           <AccordianKeyValues
