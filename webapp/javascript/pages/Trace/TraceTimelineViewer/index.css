@@ -16,6 +16,7 @@ limitations under the License.
 
 .TraceTimelineViewer {
   border-bottom: 1px solid #bbb;
+  overflow: hidden;
 }
 
 .json-markup {

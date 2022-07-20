@@ -226,7 +226,7 @@ export function SidebarComponent() {
               Trace
               <NavLink
                 to={{
-                  pathname: `${PAGES.TRACE}/1158f70ebb2bc1fb5084852761cecaae`,
+                  pathname: PAGES.TRACE,
                   search,
                 }}
                 exact

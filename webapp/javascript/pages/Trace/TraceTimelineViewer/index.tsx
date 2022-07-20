@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import React from 'react';
-// import { connect } from 'react-redux';
-// import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 
-// import { actions } from './duck';
+import { actions } from './duck';
 import TimelineHeaderRow from './TimelineHeaderRow';
 import VirtualizedTraceView from './VirtualizedTraceView';
-// import { merge as mergeShortcuts } from '../keyboard-shortcuts';
+import { merge as mergeShortcuts } from '../keyboard-shortcuts';
 import { Accessors } from '../ScrollManager';
 import {
   TUpdateViewRangeTimeFunction,
   IViewRange,
   ViewRangeTimeUpdate,
   TNil,
-  // ReduxState,
+  ReduxState,
 } from '../types';
 
 import { Span, Trace } from '../types/trace';
@@ -61,14 +61,14 @@ const NUM_TICKS = 5;
  * or `TimelineHeaderRow`.
  */
 export class TraceTimelineViewerImpl extends React.PureComponent<TProps> {
-  // componentDidMount() {
-  //   mergeShortcuts({
-  //     collapseAll: this.collapseAll,
-  //     expandAll: this.expandAll,
-  //     collapseOne: this.collapseOne,
-  //     expandOne: this.expandOne,
-  //   });
-  // }
+  componentDidMount() {
+    mergeShortcuts({
+      collapseAll: this.collapseAll,
+      expandAll: this.expandAll,
+      collapseOne: this.collapseOne,
+      expandOne: this.expandOne,
+    });
+  }
 
   collapseAll = () => {
     this.props.collapseAll(this.props.trace.spans);
@@ -120,31 +120,29 @@ export class TraceTimelineViewerImpl extends React.PureComponent<TProps> {
   }
 }
 
-// function mapStateToProps(state: ReduxState) {
-//   const spanNameColumnWidth = 0.25 // state.traceTimeline.spanNameColumnWidth;
-//   return { spanNameColumnWidth };
-// }
+function mapStateToProps(state: ReduxState) {
+  const spanNameColumnWidth = state.traceTimeline.spanNameColumnWidth;
+  return { spanNameColumnWidth };
+}
 
-// function mapDispatchToProps(dispatch: Dispatch<ReduxState>): TDispatchProps {
-//   const {
-//     setSpanNameColumnWidth,
-//     expandAll,
-//     expandOne,
-//     collapseAll,
-//     collapseOne,
-//   } = bindActionCreators(actions, dispatch);
-//   return {
-//     setSpanNameColumnWidth,
-//     expandAll,
-//     expandOne,
-//     collapseAll,
-//     collapseOne,
-//   };
-// }
+function mapDispatchToProps(dispatch: Dispatch<ReduxState>): TDispatchProps {
+  const {
+    setSpanNameColumnWidth,
+    expandAll,
+    expandOne,
+    collapseAll,
+    collapseOne,
+  } = bindActionCreators(actions, dispatch);
+  return {
+    setSpanNameColumnWidth,
+    expandAll,
+    expandOne,
+    collapseAll,
+    collapseOne,
+  };
+}
 
-// export default connect(
-//   mapStateToProps,
-//   null
-// )(TraceTimelineViewerImpl);
-
-export default TraceTimelineViewerImpl;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TraceTimelineViewerImpl);
