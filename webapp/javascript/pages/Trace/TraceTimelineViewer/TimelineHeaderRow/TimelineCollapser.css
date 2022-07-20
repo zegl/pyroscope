@@ -22,35 +22,26 @@ limitations under the License.
   margin-right: 0.5rem;
 }
 
-.TimelineCollapser .anticon {
-  display: inline-block;
-  font-style: normal;
-  vertical-align: baseline;
-  text-align: center;
-  text-transform: none;
-  line-height: 1;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .TimelineCollapser--tooltipTitle {
   white-space: pre;
 }
 
+.TimelineCollapser--btn {
+  width: 20px !important;
+  height: 20px;
+}
+
 .TimelineCollapser--btn,
 .TimelineCollapser--btn-expand {
-  color: rgba(0, 0, 0, 0.5);
+  color: white;
   cursor: pointer;
-  margin-right: 0.3rem;
   padding: 0.1rem;
+  margin-right: 5px;
+  cursor: pointer;
 }
 
 .TimelineCollapser--btn:hover,
 .TimelineCollapser--btn-expand:hover {
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.TimelineCollapser--btn-expand {
-  transform: rotate(90deg);
+  color: white;
+  opacity: 0.8;
 }

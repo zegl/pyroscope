@@ -74,11 +74,11 @@ function App() {
               </Continuous>
             </Protected>
           </Route>
-          <Route path={PAGES.TRACE}>
+          <Route exact path={PAGES.TRACE}>
             <Protected>
-              {/* <Continuous> */}
-              <TracePage />
-              {/* </Continuous> */}
+              <Continuous>
+                <TracePage />
+              </Continuous>
             </Protected>
           </Route>
           <Route path={PAGES.SETTINGS}>

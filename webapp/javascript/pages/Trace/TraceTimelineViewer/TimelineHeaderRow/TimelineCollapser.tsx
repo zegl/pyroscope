@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import React from 'react';
-import { Tooltip, Icon } from 'antd';
+import Icon from '@webapp/ui/Icon';
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons/faAngleDown';
+import { faAngleDoubleDown } from '@fortawesome/free-solid-svg-icons/faAngleDoubleDown';
+import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons/faAngleDoubleRight';
 
 import './TimelineCollapser.css';
 
@@ -23,10 +27,6 @@ type CollapserProps = {
   onExpandOne: () => void;
   onExpandAll: () => void;
 };
-
-function getTitle(value: string) {
-  return <span className="TimelineCollapser--tooltipTitle">{value}</span>;
-}
 
 export default class TimelineCollapser extends React.PureComponent<CollapserProps> {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -45,46 +45,20 @@ export default class TimelineCollapser extends React.PureComponent<CollapserProp
       this.props;
     return (
       <div className="TimelineCollapser" ref={this.containerRef}>
-        <Tooltip
-          title={getTitle('Expand +1')}
-          getPopupContainer={this.getContainer}
-        >
-          <Icon
-            type="right"
-            onClick={onExpandOne}
-            className="TimelineCollapser--btn-expand"
-          />
-        </Tooltip>
-        <Tooltip
-          title={getTitle('Collapse +1')}
-          getPopupContainer={this.getContainer}
-        >
-          <Icon
-            type="right"
-            onClick={onCollapseOne}
-            className="TimelineCollapser--btn"
-          />
-        </Tooltip>
-        <Tooltip
-          title={getTitle('Expand All')}
-          getPopupContainer={this.getContainer}
-        >
-          <Icon
-            type="double-right"
-            onClick={onExpandAll}
-            className="TimelineCollapser--btn-expand"
-          />
-        </Tooltip>
-        <Tooltip
-          title={getTitle('Collapse All')}
-          getPopupContainer={this.getContainer}
-        >
-          <Icon
-            type="double-right"
-            onClick={onCollapseAll}
-            className="TimelineCollapser--btn"
-          />
-        </Tooltip>
+        <div aria-hidden="true" onClick={onExpandOne}>
+          <Icon className="TimelineCollapser--btn" icon={faAngleDown} />
+        </div>
+        <div aria-hidden="true" onClick={onCollapseOne}>
+          <Icon icon={faAngleRight} className="TimelineCollapser--btn" />
+        </div>
+
+        <div aria-hidden="true" onClick={onExpandAll}>
+          <Icon icon={faAngleDoubleDown} className="TimelineCollapser--btn" />
+        </div>
+
+        <div aria-hidden="true" onClick={onCollapseAll}>
+          <Icon icon={faAngleDoubleRight} className="TimelineCollapser--btn" />
+        </div>
       </div>
     );
   }

@@ -224,13 +224,7 @@ export function SidebarComponent() {
               icon={<Icon icon={faAlignRight} />}
             >
               Trace
-              <NavLink
-                to={{
-                  pathname: PAGES.TRACE,
-                  search,
-                }}
-                exact
-              />
+              <NavLink to={{ pathname: PAGES.TRACE }} exact />
             </MenuItem>
           </SubMenu>
         </Menu>
