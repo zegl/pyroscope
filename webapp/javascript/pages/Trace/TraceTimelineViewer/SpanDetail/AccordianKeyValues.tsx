@@ -17,12 +17,13 @@ import cx from 'classnames';
 import IoIosArrowDown from 'react-icons/lib/io/ios-arrow-down';
 import IoIosArrowRight from 'react-icons/lib/io/ios-arrow-right';
 
-import * as markers from './AccordianKeyValues.markers';
 import KeyValuesTable from './KeyValuesTable';
 import { TNil } from '../../types';
 import { KeyValuePair, Link } from '../../types/trace';
 
 import './AccordianKeyValues.css';
+
+const LABEL = 'label';
 
 type AccordianKeyValuesProps = {
   className?: string | TNil;
@@ -103,7 +104,7 @@ export default function AccordianKeyValues(props: AccordianKeyValuesProps) {
         {...headerProps}
       >
         {arrow}
-        <strong data-test={markers.LABEL}>
+        <strong data-test={LABEL}>
           {label}
           {isOpen || ':'}
         </strong>
