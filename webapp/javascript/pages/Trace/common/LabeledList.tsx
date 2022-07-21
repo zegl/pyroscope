@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import * as React from 'react';
-// import { Divider } from 'antd';
 
 import './LabeledList.css';
 

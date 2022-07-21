@@ -17,9 +17,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import { actions } from './duck';
-import TimelineHeaderRow from './TimelineHeaderRow';
+import TimelineHeaderRow from './TimelineHeaderRow/TimelineHeaderRow';
 import VirtualizedTraceView from './VirtualizedTraceView';
-import { merge as mergeShortcuts } from '../keyboard-shortcuts';
 import { Accessors } from '../ScrollManager';
 import {
   TUpdateViewRangeTimeFunction,
@@ -61,14 +60,14 @@ const NUM_TICKS = 5;
  * or `TimelineHeaderRow`.
  */
 export class TraceTimelineViewerImpl extends React.PureComponent<TProps> {
-  componentDidMount() {
-    mergeShortcuts({
-      collapseAll: this.collapseAll,
-      expandAll: this.expandAll,
-      collapseOne: this.collapseOne,
-      expandOne: this.expandOne,
-    });
-  }
+  // componentDidMount() {
+  //   mergeShortcuts({
+  //     collapseAll: this.collapseAll,
+  //     expandAll: this.expandAll,
+  //     collapseOne: this.collapseOne,
+  //     expandOne: this.expandOne,
+  //   });
+  // }
 
   collapseAll = () => {
     this.props.collapseAll(this.props.trace.spans);

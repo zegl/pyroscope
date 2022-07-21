@@ -18,15 +18,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import _isEqual from 'lodash/isEqual';
-
-// import { History as RouterHistory, Location } from 'history';
-
 import memoizeOne from 'memoize-one';
-import { actions } from './duck';
-import ListView from './ListView';
-import SpanBarRow from './SpanBarRow';
-import DetailState from './SpanDetail/DetailState';
-import SpanDetailRow from './SpanDetailRow';
+import { actions } from '../duck';
+import ListView from '../ListView';
+import SpanBarRow from '../SpanBarRow';
+import DetailState from '../SpanDetail/DetailState';
+import SpanDetailRow from '../SpanDetailRow';
 import {
   createViewedBoundsFunc,
   findServerChildSpan,
@@ -34,21 +31,20 @@ import {
   isKindClient,
   spanContainsErredSpan,
   ViewedBoundsFunctionType,
-} from './utils';
-import { Accessors } from '../ScrollManager';
+} from '../utils';
+import { Accessors } from '../../ScrollManager';
 import {
   extractUiFindFromState,
   TExtractUiFindFromStateReturn,
-} from '../common/UiFindInput';
-import getLinks from '../model/link-patterns';
-import colorGenerator from '../utils/color-generator';
-import { TNil, ReduxState } from '../types';
-import { Log, Span, Trace, KeyValuePair } from '../types/trace';
-import TTraceTimeline from '../types/TTraceTimeline';
-
+} from '../../common/UiFindInput';
+import getLinks from './link-patterns';
+import colorGenerator from '../../utils/color-generator';
+import { TNil, ReduxState, TTraceTimeline } from '../../types';
+import { Log, Span, Trace, KeyValuePair } from '../../types/trace';
 import './VirtualizedTraceView.css';
-import updateUiFind from '../utils/update-ui-find';
-import { PEER_SERVICE } from '../constants/tag-keys';
+import updateUiFind from '../../utils/update-ui-find';
+
+const PEER_SERVICE = 'peer.service';
 
 type RowState = {
   isDetail: boolean;

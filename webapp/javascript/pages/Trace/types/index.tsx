@@ -13,23 +13,109 @@
 // limitations under the License.
 
 import { Router } from 'react-router-dom';
-// import { Location } from 'history';
-// import { TNil } from '../../types';
-import { ApiError } from './api-error';
-import { TracesArchive } from './archive';
-import { Config } from './config';
-import { EmbeddedState } from './embedded';
-import { SearchQuery } from './search';
-import TDdgState from './TDdgState';
-import tNil from './TNil';
-// import iWebAnalytics from './tracking';
 import { Trace } from './trace';
-import TTraceDiffState from './TTraceDiffState';
-import TTraceTimeline from './TTraceTimeline';
-import { MetricsReduxState } from './metrics';
+import DetailState from '../TraceTimelineViewer/SpanDetail/DetailState';
 
-export type TNil = tNil;
-export type IWebAnalytics = ShamefulAny;
+export type Points = {
+  x: number;
+  y: number | null;
+};
+
+export type DataAvg = {
+  service_operation_call_rate: null | number;
+  service_operation_error_rate: null | number;
+  service_operation_latencies: null | number;
+};
+
+export type OpsDataPoints = {
+  service_operation_call_rate: Points[];
+  service_operation_error_rate: Points[];
+  service_operation_latencies: Points[];
+  avg: DataAvg;
+};
+
+export type ServiceOpsMetrics = {
+  dataPoints: OpsDataPoints;
+  errRates: number;
+  impact: number;
+  latency: number;
+  name: string;
+  requests: number;
+  key: number;
+};
+
+export type ServiceMetricsObject = {
+  serviceName: string;
+  quantile: number;
+  max: number;
+  metricPoints: Points[];
+};
+
+export type ServiceMetrics = {
+  service_latencies: null | ServiceMetricsObject[];
+  service_call_rate: null | ServiceMetricsObject;
+  service_error_rate: null | ServiceMetricsObject;
+};
+
+export type MetricsReduxState = {
+  serviceError: {
+    service_latencies_50: null | ApiError;
+    service_latencies_75: null | ApiError;
+    service_latencies_95: null | ApiError;
+    service_call_rate: null | ApiError;
+    service_error_rate: null | ApiError;
+  };
+  opsError: {
+    opsLatencies: null | ApiError;
+    opsCalls: null | ApiError;
+    opsErrors: null | ApiError;
+  };
+  isATMActivated: null | boolean;
+  loading: boolean;
+  operationMetricsLoading: null | boolean;
+  serviceMetrics: ServiceMetrics | null;
+  serviceOpsMetrics: ServiceOpsMetrics[] | undefined;
+};
+
+export type TTraceTimeline = {
+  childrenHiddenIDs: Set<string>;
+  detailStates: Map<string, DetailState>;
+  hoverIndentGuideIds: Set<string>;
+  shouldScrollToFirstUiFindMatch: boolean;
+  spanNameColumnWidth: number;
+  traceID: string | TNil;
+};
+
+export type ApiError =  // eslint-disable-line import/prefer-default-export
+  | string
+  | {
+      message: string;
+      httpStatus?: any;
+      httpStatusText?: string;
+      httpUrl?: string;
+      httpQuery?: string;
+      httpBody?: string;
+    };
+
+type SearchQuery = {
+  end: number | string;
+  limit: number | string;
+  lookback: string;
+  maxDuration: null | string;
+  minDuration: null | string;
+  operation: string | TNil;
+  service: string;
+  start: number | string;
+  tags: string | TNil;
+};
+
+type TTraceDiffState = {
+  a?: string | TNil;
+  b?: string | TNil;
+  cohort: string[];
+};
+
+export type TNil = null | undefined;
 
 export type FetchedState = 'FETCH_DONE' | 'FETCH_ERROR' | 'FETCH_LOADING';
 
@@ -41,15 +127,13 @@ export type FetchedTrace = {
 };
 
 export type ReduxState = {
-  archive: TracesArchive;
   config: Config;
-  ddg: TDdgState;
   dependencies: {
     dependencies: { parent: string; child: string; callCount: number }[];
     loading: boolean;
     error: ApiError | TNil;
   };
-  embedded: EmbeddedState;
+  // embedded: EmbeddedState;
   router: typeof Router & {
     location: Location;
   };
@@ -127,3 +211,72 @@ export enum ETraceViewType {
   TraceSpansView = 'TraceSpansView',
   TraceFlamegraph = 'TraceFlamegraph',
 }
+
+type ConfigMenuItem = {
+  label: string;
+  url: string;
+  anchorTarget?: '_self' | '_blank' | '_parent' | '_top';
+};
+
+type ConfigMenuGroup = {
+  label: string;
+  items: ConfigMenuItem[];
+};
+
+type TScript = {
+  text: string;
+  type: 'inline';
+};
+
+type LinkPatternsConfig = {
+  type: 'process' | 'tags' | 'logs' | 'traces';
+  key?: string;
+  url: string;
+  text: string;
+};
+
+type MonitorEmptyStateConfig = {
+  mainTitle?: string;
+  subTitle?: string;
+  description?: string;
+  button?: {
+    text?: string;
+    onClick?: Function;
+  };
+  info?: string;
+  alert?: {
+    message?: string;
+    type?: 'success' | 'info' | 'warning' | 'error';
+  };
+};
+
+export type Config = {
+  archiveEnabled?: boolean;
+  deepDependencies?: {
+    menuEnabled?: boolean;
+  };
+  dependencies?: { dagMaxServicesLen?: number; menuEnabled?: boolean };
+  menu: (ConfigMenuGroup | ConfigMenuItem)[];
+  pathAgnosticDecorations?: any[];
+  qualityMetrics?: {
+    menuEnabled?: boolean;
+    menuLabel?: string;
+  };
+  search?: { maxLookback: { label: string; value: string }; maxLimit: number };
+  scripts?: TScript[];
+  topTagPrefixes?: string[];
+  tracking?: {
+    cookieToDimension?: {
+      cookie: string;
+      dimension: string;
+    }[];
+    gaID: string | TNil;
+    trackErrors: boolean | TNil;
+  };
+  linkPatterns?: LinkPatternsConfig;
+  monitor?: {
+    menuEnabled?: boolean;
+    emptyState?: MonitorEmptyStateConfig;
+    docsLink?: string;
+  };
+};

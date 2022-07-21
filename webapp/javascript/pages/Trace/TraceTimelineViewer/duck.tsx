@@ -20,13 +20,23 @@ import {
 } from 'redux-actions';
 
 import DetailState from './SpanDetail/DetailState';
-import { TNil } from '../types';
+import { TNil, TTraceTimeline } from '../types';
 import { Log, Span, Trace } from '../types/trace';
-import TTraceTimeline from '../types/TTraceTimeline';
 import filterSpans from '../utils/filter-spans';
-import generateActionTypes from '../utils/generate-action-types';
 import guardReducer from '../utils/guardReducer';
 import spanAncestorIds from '../utils/span-ancestor-ids';
+
+function generateActionTypes(
+  commonPrefix: string,
+  topLevelTypes: string[]
+): Record<string, string> {
+  const rv: Record<string, string> = {};
+  topLevelTypes.forEach((type) => {
+    const fullType = `${commonPrefix}/${type}`;
+    rv[type] = fullType;
+  });
+  return rv;
+}
 
 // payloads
 export type TSpanIdLogValue = { logItem: Log; spanID: string };

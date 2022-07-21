@@ -3,7 +3,7 @@ import * as React from 'react';
 import _get from 'lodash/get';
 import _memoize from 'lodash/memoize';
 import filterSpans from './utils/filter-spans';
-import TracePageHeader from './TracePageHeader';
+import TracePageHeader from './TracePageHeader/TracePageHeader';
 import { mockData } from './mockTrace';
 import {
   TUpdateViewRangeTimeFunction,
@@ -18,7 +18,6 @@ import TraceTimelineViewer from './TraceTimelineViewer';
 import ScrollManager from './ScrollManager';
 import { cancel as cancelScroll, scrollBy, scrollTo } from './scroll-page';
 
-// import 'antd/dist/antd.css';
 type TProps = TDispatchProps & TOwnProps & TReduxProps;
 
 type TState = {
@@ -43,7 +42,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
 
   constructor(props) {
     super(props);
-    const { embedded, trace } = props;
+    const { embedded } = props;
 
     this.state = {
       headerHeight: null,
@@ -72,22 +71,6 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
     });
   }
 
-  // componentDidMount() {
-  // const { id, trace } = this.props;
-
-  // this._scrollManager.setTrace(trace && trace.data);
-
-  // this.setHeaderHeight(this._headerElm);
-  // if (!trace) {
-  //   this.ensureTraceFetched();
-  //   return;
-  // }
-  // if (prevID !== id) {
-  //   this.updateViewRangeTime(0, 1);
-  //   this.clearSearch();
-  // }
-  // }
-
   setHeaderHeight = (elm: HTMLElement | TNil) => {
     this._headerElm = elm;
     if (elm) {
@@ -109,9 +92,6 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
     end: number,
     trackSrc?: string
   ) => {
-    // if (trackSrc) {
-    //   trackRange(trackSrc, [start, end], this.state.viewRange.time.current);
-    // }
     const current: [number, number] = [start, end];
     const time = { current };
     this.setState((state: TState) => ({
@@ -172,7 +152,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
           (embedded && embedded.timeline.hideMinimap)
       ),
       hideSummary: Boolean(embedded && embedded.timeline.hideSummary),
-      linkToStandalone: '', // getUrl(id),
+      linkToStandalone: '',
       // nextResult: this.nextResult,
       // onArchiveClicked: this.archiveTrace,
       onSlimViewClicked: this.toggleSlimView,
@@ -207,13 +187,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
         <div className="Tracepage--headerSection" ref={this.setHeaderHeight}>
           <TracePageHeader {...headerProps} />
         </div>
-        {headerHeight ? (
-          <section
-          // style={{ paddingTop: headerHeight }}
-          >
-            {view}
-          </section>
-        ) : null}
+        {headerHeight ? <section>{view}</section> : null}
       </>
     );
   }

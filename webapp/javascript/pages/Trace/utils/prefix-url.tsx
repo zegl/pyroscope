@@ -12,23 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import sitePrefix from '../site-prefix';
+// import sitePrefix from '../site-prefix';
+
+const baseNode = document.querySelector('base');
+if (!baseNode && process.env.NODE_ENV !== 'test') {
+  throw new Error('<base> element not found');
+}
+
+const sitePrefix = baseNode ? baseNode.href : `${global.location.origin}/`;
+
+// Configure the webpack publicPath to match the <base>:
+// https://webpack.js.org/guides/public-path/#on-the-fly
+// eslint-disable-next-line camelcase
+window.__webpack_public_path__ = sitePrefix;
+
+// export default sitePrefix;
 
 const origin =
   process.env.NODE_ENV === 'test'
     ? global.location.origin
     : window.location.origin;
 
-/**
- * Generate the URL prefix from `sitePrefix` and use it for all subsequent calls
- * to `prefixUrl()`. `sitePrefix` should be an absolute URL, e.g. with an origin.
- * `pathPrefix` is just the path portion and should not have a trailing slash:
- *
- * - `"http://localhost:3000/"` to `""`
- * - `"http://localhost:3000/abc/"` to `"/abc"`
- * - `"http://localhost:3000/abc/def/"` to `"/abc/def"`
- */
-// exported for tests
 export function getPathPrefix(orig?: string, sitePref?: string) {
   const o = orig == null ? '' : orig.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   const s = sitePref == null ? '' : sitePref;
@@ -38,13 +42,6 @@ export function getPathPrefix(orig?: string, sitePref?: string) {
 
 const pathPrefix = getPathPrefix(origin, sitePrefix);
 
-/**
- * Add the path prefix to the  URL. See [site-prefix.js](../site-prefix.js) and
- * the `<base>` tag in [index.html](../../public/index.html) for details.
- *
- * @param {string} value The URL to have the prefix added to.
- * @return {string} The resultant URL.
- */
 export default function prefixUrl(value?: string) {
   const s = value == null ? '' : String(value);
   return `${pathPrefix}${s}`;

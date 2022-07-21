@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TNil } from '../../../../types';
+import { TNil } from '../../types';
 
 // exported for tests
 export const BG_COLOR = '#fff';

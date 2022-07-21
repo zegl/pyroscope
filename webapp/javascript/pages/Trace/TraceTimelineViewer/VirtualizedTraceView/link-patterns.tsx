@@ -15,11 +15,20 @@
 import _uniq from 'lodash/uniq';
 import memoize from 'lru-memoize';
 
-import { getConfigValue } from '../utils/config/get-config';
-import { encodedStringSupplant, getParamNames } from '../utils/stringSupplant';
-import { getParent } from './span';
-import { TNil } from '../types';
-import { Span, Link, KeyValuePair, Trace } from '../types/trace';
+import { getConfigValue } from '../../utils/config/get-config';
+import {
+  encodedStringSupplant,
+  getParamNames,
+} from '../../utils/stringSupplant';
+import { TNil } from '../../types';
+import { Span, Link, KeyValuePair, Trace } from '../../types/trace';
+
+function getParent(span: Span) {
+  const parentRef = span.references
+    ? span.references.find((ref) => ref.refType === 'CHILD_OF')
+    : null;
+  return parentRef ? parentRef.span : null;
+}
 
 type ProcessedTemplate = {
   parameters: string[];
@@ -38,7 +47,7 @@ type ProcessedLinkPattern = {
 
 type TLinksRV = { url: string; text: string }[];
 
-export function processTemplate(
+function processTemplate(
   template: any,
   encodeFn: (unencoded: any) => string
 ): ProcessedTemplate {
@@ -59,7 +68,7 @@ export function processTemplate(
   };
 }
 
-export function createTestFunction(entry: any) {
+function createTestFunction(entry: any) {
   if (typeof entry === 'string') {
     return (arg: any) => arg === entry;
   }
@@ -80,7 +89,7 @@ export function createTestFunction(entry: any) {
 
 const identity = (a: any): typeof a => a;
 
-export function processLinkPattern(pattern: any): ProcessedLinkPattern | TNil {
+function processLinkPattern(pattern: any): ProcessedLinkPattern | TNil {
   try {
     const url = processTemplate(pattern.url, encodeURIComponent);
     const text = processTemplate(pattern.text, identity);
@@ -100,14 +109,14 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | TNil {
   }
 }
 
-export function getParameterInArray(name: string, array: KeyValuePair[]) {
+function getParameterInArray(name: string, array: KeyValuePair[]) {
   if (array) {
     return array.find((entry) => entry.key === name);
   }
   return undefined;
 }
 
-export function getParameterInAncestor(name: string, span: Span) {
+function getParameterInAncestor(name: string, span: Span) {
   let currentSpan: Span | TNil = span;
   while (currentSpan) {
     const result =
@@ -125,10 +134,7 @@ function callTemplate(template: ProcessedTemplate, data: any) {
   return template.template(data);
 }
 
-export function computeTraceLink(
-  linkPatterns: ProcessedLinkPattern[],
-  trace: Trace
-) {
+function computeTraceLink(linkPatterns: ProcessedLinkPattern[], trace: Trace) {
   const result: TLinksRV = [];
   const validKeys = (Object.keys(trace) as (keyof Trace)[]).filter(
     (key) => typeof trace[key] === 'string' || typeof trace[key] === 'number'
@@ -159,7 +165,7 @@ export function computeTraceLink(
   return result;
 }
 
-export function computeLinks(
+function computeLinks(
   linkPatterns: ProcessedLinkPattern[],
   span: Span,
   items: KeyValuePair[],
@@ -212,7 +218,7 @@ export function computeLinks(
   return result;
 }
 
-export function createGetLinks(
+function createGetLinks(
   linkPatterns: ProcessedLinkPattern[],
   cache: WeakMap<KeyValuePair, Link[]>
 ) {
@@ -235,13 +241,5 @@ const processedLinks: ProcessedLinkPattern[] = (
 )
   .map(processLinkPattern)
   .filter(Boolean);
-
-export const getTraceLinks: (trace: Trace | undefined) => TLinksRV = memoize(
-  10
-)((trace: Trace | undefined) => {
-  const result: TLinksRV = [];
-  if (!trace) return result;
-  return computeTraceLink(processedLinks, trace);
-});
 
 export default createGetLinks(processedLinks, new WeakMap());

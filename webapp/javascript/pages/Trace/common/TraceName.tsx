@@ -13,15 +13,20 @@
 // limitations under the License.
 
 import * as React from 'react';
-
 import BreakableText from './BreakableText';
 import LoadingIndicator from './LoadingIndicator';
-import { fetchedState, FALLBACK_TRACE_NAME } from '../constants';
-
-import { FetchedState, TNil } from '../types';
-import { ApiError } from '../types/api-error';
+import { FetchedState, TNil, ApiError } from '../types';
 
 import './TraceName.css';
+
+const FALLBACK_TRACE_NAME =
+  '<trace-without-root-span>' as '<trace-without-root-span>';
+
+const fetchedState = {
+  DONE: 'FETCH_DONE',
+  ERROR: 'FETCH_ERROR',
+  LOADING: 'FETCH_LOADING',
+};
 
 type Props = {
   className?: string;

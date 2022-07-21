@@ -14,7 +14,6 @@
 
 import * as React from 'react';
 import memoizeOne from 'memoize-one';
-
 import CanvasSpanGraph from './CanvasSpanGraph';
 import TickLabels from './TickLabels';
 import ViewingLayer from './ViewingLayer';

@@ -16,7 +16,7 @@ import _memoize from 'lodash/memoize';
 
 import { Span } from '../types/trace';
 
-export function _getTraceNameImpl(spans: Span[]) {
+function getTraceNameImpl(spans: Span[]) {
   // Use a span with no references to another span in given array
   // prefering the span with the fewest references
   // using start time as a tie breaker
@@ -55,7 +55,7 @@ export function _getTraceNameImpl(spans: Span[]) {
     : '';
 }
 
-export const getTraceName = _memoize(_getTraceNameImpl, (spans: Span[]) => {
+export const getTraceName = _memoize(getTraceNameImpl, (spans: Span[]) => {
   if (!spans.length) return 0;
   return spans[0].traceID;
 });

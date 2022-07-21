@@ -13,10 +13,7 @@
 // limitations under the License.
 
 import queryString from 'query-string';
-
 import prefixUrl from '../utils/prefix-url';
-
-import { TNil } from '../types';
 
 export const ROUTE_PATH = prefixUrl('/trace/:id');
 
@@ -25,16 +22,4 @@ export function getUrl(id: string, uiFind?: string): string {
   if (!uiFind) return traceUrl;
 
   return `${traceUrl}?${queryString.stringify({ uiFind })}`;
-}
-
-export function getLocation(
-  id: string,
-  state: Record<string, ShamefulAny> | TNil,
-  uiFind?: string
-) {
-  return {
-    state,
-    pathname: getUrl(id),
-    search: uiFind && queryString.stringify({ uiFind }),
-  };
 }
