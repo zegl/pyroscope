@@ -34,13 +34,21 @@ type TTweenOptions = {
 
 export default class Tween {
   callbackComplete: TTweenCallback | TNil;
+
   callbackUpdate: TTweenCallback | TNil;
+
   delay: number | TNil;
+
   duration: number;
+
   from: number;
+
   requestID: number | TNil;
+
   startTime: number;
+
   timeoutID: number | TNil;
+
   to: number;
 
   constructor({

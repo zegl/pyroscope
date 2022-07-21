@@ -114,52 +114,65 @@ export default class ListView extends React.Component<TListViewProps> {
    * ListView.
    */
   _yPositions: Positions;
+
   /**
    * Keep track of the known / measured heights of the rendered items; populated
    * with values through observation and keyed on the item key, not the item
    * index.
    */
   _knownHeights: Map<string, number>;
+
   /**
    * The start index of the items currently drawn.
    */
   _startIndexDrawn: number;
+
   /**
    * The end index of the items currently drawn.
    */
   _endIndexDrawn: number;
+
   /**
    * The start index of the items currently in view.
    */
   _startIndex: number;
+
   /**
    * The end index of the items currently in view.
    */
   _endIndex: number;
+
   /**
    * Height of the visual window, e.g. height of the scroller element.
    */
   _viewHeight: number;
+
   /**
    * `scrollTop` of the current scroll position.
    */
   _scrollTop: number;
+
   /**
    * Used to keep track of whether or not a re-calculation of what should be
    * drawn / viewable has been scheduled.
    */
   _isScrolledOrResized: boolean;
+
   /**
    * If `windowScroller` is true, this notes how far down the page the scroller
    * is located. (Note: repositioning and below-the-fold views are untested)
    */
   _htmlTopOffset: number;
+
   _windowScrollListenerAdded: boolean;
+
   _htmlElm: HTMLElement;
+
   /**
    * HTMLElement holding the scroller.
    */
   _wrapperElm: HTMLElement | TNil;
+
   /**
    * HTMLElement holding the rendered items.
    */
@@ -333,7 +346,7 @@ export default class ListView extends React.Component<TListViewProps> {
    * are found, re-measure the current known y-positions (via .yPositions).
    */
   _scanItemHeights = () => {
-    const getIndexFromKey = this.props.getIndexFromKey;
+    const { getIndexFromKey } = this.props;
     if (!this._itemHolderElm) {
       return;
     }
@@ -471,7 +484,7 @@ export default class ListView extends React.Component<TListViewProps> {
       wrapperProps.style.overflowY = 'auto';
     }
     const scrollerStyle = {
-      position: 'relative' as 'relative',
+      position: 'relative' as const,
       height: this._yPositions.getEstimatedHeight(),
     };
     return (

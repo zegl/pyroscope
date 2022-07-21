@@ -35,14 +35,22 @@ type DraggableManagerOptions = {
 export default class DraggableManager {
   // cache the last known DraggableBounds (invalidate via `#resetBounds())
   _bounds: DraggableBounds | TNil;
+
   _isDragging: boolean;
+
   // optional callbacks for various dragging events
   _onMouseEnter: ((update: DraggingUpdate) => void) | TNil;
+
   _onMouseLeave: ((update: DraggingUpdate) => void) | TNil;
+
   _onMouseMove: ((update: DraggingUpdate) => void) | TNil;
+
   _onDragStart: ((update: DraggingUpdate) => void) | TNil;
+
   _onDragMove: ((update: DraggingUpdate) => void) | TNil;
+
   _onDragEnd: ((update: DraggingUpdate) => void) | TNil;
+
   // whether to reset the bounds on window resize
   _resetBoundsOnResize: boolean;
 
@@ -60,8 +68,11 @@ export default class DraggableManager {
 
   // handlers for integration with DOM elements
   handleMouseEnter: (event: React.MouseEvent<any>) => void;
+
   handleMouseMove: (event: React.MouseEvent<any>) => void;
+
   handleMouseLeave: (event: React.MouseEvent<any>) => void;
+
   handleMouseDown: (event: React.MouseEvent<any>) => void;
 
   constructor({

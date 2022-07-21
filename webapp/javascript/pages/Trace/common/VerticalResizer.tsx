@@ -42,6 +42,7 @@ export default class VerticalResizer extends React.PureComponent<
   state: VerticalResizerState;
 
   _dragManager: DraggableManager;
+
   _rootElm: Element | TNil;
 
   constructor(props: VerticalResizerProps) {

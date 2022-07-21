@@ -120,7 +120,7 @@ export class TraceTimelineViewerImpl extends React.PureComponent<TProps> {
 }
 
 function mapStateToProps(state: ReduxState) {
-  const spanNameColumnWidth = state.traceTimeline.spanNameColumnWidth;
+  const { spanNameColumnWidth } = state.traceTimeline;
   return { spanNameColumnWidth };
 }
 

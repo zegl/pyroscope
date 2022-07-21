@@ -19,8 +19,7 @@ import { FetchedState, TNil, ApiError } from '../types';
 
 import './TraceName.css';
 
-const FALLBACK_TRACE_NAME =
-  '<trace-without-root-span>' as '<trace-without-root-span>';
+const FALLBACK_TRACE_NAME = '<trace-without-root-span>' as const;
 
 const fetchedState = {
   DONE: 'FETCH_DONE',
@@ -55,7 +54,7 @@ export default function TraceName(props: Props) {
   } else if (state === fetchedState.LOADING) {
     title = <LoadingIndicator small />;
   } else {
-    const text: string = String(traceName || FALLBACK_TRACE_NAME);
+    const text = String(traceName || FALLBACK_TRACE_NAME);
     title = <BreakableText text={text} />;
   }
   return (

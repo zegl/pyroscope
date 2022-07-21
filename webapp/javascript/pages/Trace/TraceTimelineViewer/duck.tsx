@@ -141,12 +141,12 @@ export const actions = fullActions.jaegerUi
 function calculateFocusedFindRowStates(
   uiFind: string,
   spans: Span[],
-  allowHide: boolean = true
+  allowHide = true
 ) {
   const spansMap = new Map();
   const childrenHiddenIDs: Set<string> = new Set();
   const detailStates: Map<string, DetailState> = new Map();
-  let shouldScrollToFirstUiFindMatch: boolean = false;
+  let shouldScrollToFirstUiFindMatch = false;
 
   spans.forEach((span) => {
     spansMap.set(span.spanID, span);
@@ -197,10 +197,12 @@ function setTrace(state: TTraceTimeline, { uiFind, trace }: TTraceUiFindValue) {
   }
   const { spanNameColumnWidth } = state;
 
-  return Object.assign(
-    { ...newInitialState(), spanNameColumnWidth, traceID },
-    uiFind ? calculateFocusedFindRowStates(uiFind, spans) : null
-  );
+  return {
+    ...newInitialState(),
+    spanNameColumnWidth,
+    traceID,
+    ...(uiFind ? calculateFocusedFindRowStates(uiFind, spans) : null),
+  };
 }
 
 function setColumnWidth(

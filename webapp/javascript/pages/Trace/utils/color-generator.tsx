@@ -48,8 +48,11 @@ function strToRgb(s: string): [number, number, number] {
 
 export class ColorGenerator {
   colorsHex: string[];
+
   colorsRgb: [number, number, number][];
+
   cache: Map<string, number>;
+
   currentIdx: number;
 
   constructor(colorsHex: string[] = COLORS_HEX) {

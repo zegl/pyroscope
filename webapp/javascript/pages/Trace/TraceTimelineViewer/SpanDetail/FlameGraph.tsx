@@ -9,7 +9,7 @@ interface IProps {
 }
 
 const composeUrl = ({ url, type }: IProps) => {
-  const origin = new URL(url).origin;
+  const { origin } = new URL(url);
   const parsed = queryString.parseUrl(url);
   const commonParams = {
     'max-nodes': 1024,

@@ -19,9 +19,13 @@ import { Log } from '../../types/trace';
  */
 export default class DetailState {
   isTagsOpen: boolean;
+
   isProcessOpen: boolean;
+
   logs: { isOpen: boolean; openedItems: Set<Log> };
+
   isWarningsOpen: boolean;
+
   isReferencesOpen: boolean;
 
   constructor(oldState?: DetailState) {

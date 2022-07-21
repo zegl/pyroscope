@@ -144,6 +144,7 @@ function getMarkers(
  */
 export default class TimelineViewingLayer extends React.PureComponent<TimelineViewingLayerProps> {
   _draggerReframe: DraggableManager;
+
   _root: React.RefObject<HTMLDivElement>;
 
   constructor(props: TimelineViewingLayerProps) {
@@ -171,7 +172,7 @@ export default class TimelineViewingLayer extends React.PureComponent<TimelineVi
   }
 
   _getDraggingBounds = (): DraggableBounds => {
-    const current = this._root.current;
+    const { current } = this._root;
     if (!current) {
       throw new Error(
         'Component must be mounted in order to determine DraggableBounds'

@@ -29,14 +29,18 @@ export default class Positions {
    * checked.
    */
   bufferLen: number;
+
   dataLen: number;
+
   heights: number[];
+
   /**
    * `lastI` keeps track of which values have already been visited. In many
    * scenarios, values do not need to be revisited. But, revisiting is required
    * when heights have changed, so `lastI` can be forced.
    */
   lastI: number;
+
   ys: number[];
 
   constructor(bufferLen: number) {

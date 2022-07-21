@@ -128,7 +128,7 @@ export const deprecations = [
 ];
 
 const getConfig = memoizeOne(function getConfig() {
-  const getJaegerUiConfig = window.getJaegerUiConfig;
+  const { getJaegerUiConfig } = window;
   if (typeof getJaegerUiConfig !== 'function') {
     if (!haveWarnedFactoryFn) {
       // eslint-disable-next-line no-console

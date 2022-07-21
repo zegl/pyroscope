@@ -91,7 +91,9 @@ function isSpanHidden(
  */
 export default class ScrollManager {
   _trace: Trace | TNil;
+
   _scroller: IScroller;
+
   _accessors: Accessors | TNil;
 
   constructor(trace: Trace | TNil, scroller: IScroller) {

@@ -168,7 +168,7 @@ export function formatDuration(duration: number): string {
     : `${primaryUnitString} ${secondaryUnitString}`;
 }
 
-export function formatRelativeDate(value: any, fullMonthName: boolean = false) {
+export function formatRelativeDate(value: any, fullMonthName = false) {
   const m = moment.isMoment(value) ? value : moment(value);
   const monthFormat = fullMonthName ? 'MMMM' : 'MMM';
   const dt = new Date();
