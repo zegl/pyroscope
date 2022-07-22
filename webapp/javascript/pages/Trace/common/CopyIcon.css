@@ -22,6 +22,7 @@ limitations under the License.
   height: 100%;
   overflow: hidden;
   padding: 0px;
+  cursor: pointer;
 }
 
 .CopyIcon:focus {

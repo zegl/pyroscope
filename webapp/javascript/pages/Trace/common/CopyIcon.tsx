@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 // Copyright (c) 2019 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +15,11 @@
 
 import * as React from 'react';
 
-import { Button, Tooltip } from 'antd';
 import { TooltipPlacement } from 'antd/lib/tooltip/index';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
+import Icon from '@webapp/ui/Icon';
+import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 
 import './CopyIcon.css';
 
@@ -64,20 +66,26 @@ export default class CopyIcon extends React.PureComponent<
 
   render() {
     return (
-      <Tooltip
-        arrowPointAtCenter
-        mouseLeaveDelay={0.5}
-        onVisibleChange={this.handleTooltipVisibilityChange}
-        placement={this.props.placement}
-        title={this.state.hasCopied ? 'Copied' : this.props.tooltipTitle}
+      <div
+        className={cx(this.props.className, 'CopyIcon')}
+        onClick={this.handleClick}
       >
-        <Button
-          className={cx(this.props.className, 'CopyIcon')}
-          htmlType="button"
-          icon={this.props.icon}
-          onClick={this.handleClick}
-        />
-      </Tooltip>
+        <Icon icon={faCopy} />
+      </div>
+      // <Tooltip
+      //   arrowPointAtCenter
+      //   mouseLeaveDelay={0.5}
+      //   onVisibleChange={this.handleTooltipVisibilityChange}
+      //   placement={this.props.placement}
+      //   title={this.state.hasCopied ? 'Copied' : this.props.tooltipTitle}
+      // >
+      //   <Button
+      //     className={cx(this.props.className, 'CopyIcon')}
+      //     htmlType="button"
+      //     icon={this.props.icon}
+      //     onClick={this.handleClick}
+      //   />
+      // </Tooltip>
     );
   }
 }

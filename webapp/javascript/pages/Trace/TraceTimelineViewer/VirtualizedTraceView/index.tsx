@@ -177,7 +177,7 @@ export class VirtualizedTraceViewImpl extends React.Component<VirtualizedTraceVi
       nextProps
     ) as (keyof VirtualizedTraceViewProps)[];
     for (let i = 0; i < nextPropKeys.length; i += 1) {
-      if (nextProps[nextPropKeys[i]] !== this.props[nextPropKeys[i]]) {
+      if (nextProps[nextPropKeys[i]] !== this.props[nextPropKeys[i] as any]) {
         // Unless the only change was props.shouldScrollToFirstUiFindMatch changing to false.
         if (nextPropKeys[i] === 'shouldScrollToFirstUiFindMatch') {
           if (nextProps[nextPropKeys[i]]) return true;
@@ -515,7 +515,7 @@ function mapStateToProps(
 }
 
 /* istanbul ignore next */
-function mapDispatchToProps(dispatch: Dispatch<ReduxState>): TDispatchProps {
+function mapDispatchToProps(dispatch: Dispatch<any>): TDispatchProps {
   return bindActionCreators(actions, dispatch) as any as TDispatchProps;
 }
 
@@ -527,6 +527,6 @@ export default withRouter(
     ReduxState
   >(
     mapStateToProps,
-    mapDispatchToProps
+    mapDispatchToProps as any
   )(VirtualizedTraceViewImpl)
 );

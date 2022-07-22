@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable jsx-a11y/anchor-is-valid, react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-props-no-spreading */
 import * as React from 'react';
 import _get from 'lodash/get';
 import _maxBy from 'lodash/maxBy';

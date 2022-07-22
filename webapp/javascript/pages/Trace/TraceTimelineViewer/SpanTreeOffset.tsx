@@ -34,7 +34,7 @@ type TDispatchProps = {
 
 type TProps = TDispatchProps & {
   childrenVisible?: boolean;
-  hoverIndentGuideIds: Set<string>;
+  hoverIndentGuideIds?: Set<string>;
   onClick?: () => void;
   span: Span;
   showChildrenIcon?: boolean;
@@ -119,7 +119,7 @@ export class UnconnectedSpanTreeOffset extends React.PureComponent<TProps> {
           <span
             key={ancestorId}
             className={cx('SpanTreeOffset--indentGuide', {
-              'is-active': this.props.hoverIndentGuideIds.has(ancestorId),
+              'is-active': this?.props?.hoverIndentGuideIds?.has(ancestorId),
             })}
             data-ancestor-id={ancestorId}
             onMouseEnter={(event) => this.handleMouseEnter(event, ancestorId)}
@@ -149,9 +149,7 @@ export function mapStateToProps(state: ReduxState): {
   };
 }
 
-export function mapDispatchToProps(
-  dispatch: Dispatch<ReduxState>
-): TDispatchProps {
+export function mapDispatchToProps(dispatch: Dispatch<any>): TDispatchProps {
   const { addHoverIndentGuideId, removeHoverIndentGuideId } =
     bindActionCreators(actions, dispatch);
   return { addHoverIndentGuideId, removeHoverIndentGuideId };
@@ -159,5 +157,5 @@ export function mapDispatchToProps(
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps as any
 )(UnconnectedSpanTreeOffset);

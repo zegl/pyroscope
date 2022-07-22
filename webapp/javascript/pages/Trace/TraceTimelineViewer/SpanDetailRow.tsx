@@ -68,7 +68,12 @@ export default class SpanDetailRow extends React.PureComponent<SpanDetailRowProp
     return (
       <TimelineRow className="detail-row">
         <TimelineRow.Cell width={columnDivision}>
-          <SpanTreeOffset span={span} showChildrenIcon={false} />
+          <SpanTreeOffset
+            span={span}
+            showChildrenIcon={false}
+            addHoverIndentGuideId={() => {}}
+            removeHoverIndentGuideId={() => {}}
+          />
           <span>
             <span
               className="detail-row-expanded-accent"
@@ -76,6 +81,7 @@ export default class SpanDetailRow extends React.PureComponent<SpanDetailRowProp
               onClick={this._detailToggle}
               role="switch"
               style={{ borderColor: color }}
+              aria-hidden="true"
             />
           </span>
         </TimelineRow.Cell>

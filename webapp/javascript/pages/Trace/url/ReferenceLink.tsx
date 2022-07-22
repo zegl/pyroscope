@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/interactive-supports-focus, jsx-a11y/click-events-have-key-events */
+
 // Copyright (c) 2019 The Jaeger Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

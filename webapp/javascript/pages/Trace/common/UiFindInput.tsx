@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+
 // Copyright (c) 2019 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +37,7 @@ type TOwnProps = RouteComponentProps<any> & {
 };
 
 export type TExtractUiFindFromStateReturn = {
-  uiFind: string | undefined;
+  uiFind: string | undefined | null;
 };
 
 type TProps = TOwnProps & TExtractUiFindFromStateReturn;

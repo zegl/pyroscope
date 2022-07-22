@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return, default-case */
 import React, { useEffect, useState } from 'react';
 import { FlamegraphRenderer } from '@pyroscope/flamegraph';
 import queryString from 'query-string';

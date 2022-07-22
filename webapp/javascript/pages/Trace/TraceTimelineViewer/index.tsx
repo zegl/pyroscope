@@ -44,8 +44,8 @@ type TProps = TDispatchProps & {
   registerAccessors: (accessors: Accessors) => void;
   findMatchesIDs: Set<string> | TNil;
   scrollToFirstVisibleSpan: () => void;
-  spanNameColumnWidth: number;
-  trace: Trace;
+  spanNameColumnWidth: number | undefined;
+  trace: Trace | any;
   updateNextViewRangeTime: (update: ViewRangeTimeUpdate) => void;
   updateViewRangeTime: TUpdateViewRangeTimeFunction;
   viewRange: IViewRange;
@@ -60,15 +60,6 @@ const NUM_TICKS = 5;
  * or `TimelineHeaderRow`.
  */
 export class TraceTimelineViewerImpl extends React.PureComponent<TProps> {
-  // componentDidMount() {
-  //   mergeShortcuts({
-  //     collapseAll: this.collapseAll,
-  //     expandAll: this.expandAll,
-  //     collapseOne: this.collapseOne,
-  //     expandOne: this.expandOne,
-  //   });
-  // }
-
   collapseAll = () => {
     this.props.collapseAll(this.props.trace.spans);
   };
@@ -124,7 +115,7 @@ function mapStateToProps(state: ReduxState) {
   return { spanNameColumnWidth };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<ReduxState>): TDispatchProps {
+function mapDispatchToProps(dispatch: Dispatch<any>): TDispatchProps {
   const {
     setSpanNameColumnWidth,
     expandAll,
@@ -143,5 +134,5 @@ function mapDispatchToProps(dispatch: Dispatch<ReduxState>): TDispatchProps {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps as any
 )(TraceTimelineViewerImpl);

@@ -44,3 +44,7 @@ declare module 'react-svg-spinner' {
 
   export default Spinner;
 }
+
+declare module 'json-markup';
+
+declare module 'memoize-one';

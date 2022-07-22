@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import _uniq from 'lodash/uniq';
-import memoize from 'lru-memoize';
 
 import { getConfigValue } from '../../utils/config/get-config';
 import {
@@ -21,7 +20,7 @@ import {
   getParamNames,
 } from '../../utils/stringSupplant';
 import { TNil } from '../../types';
-import { Span, Link, KeyValuePair, Trace } from '../../types/trace';
+import { Span, Link, KeyValuePair } from '../../types/trace';
 
 function getParent(span: Span) {
   const parentRef = span.references
@@ -44,8 +43,6 @@ type ProcessedLinkPattern = {
   text: ProcessedTemplate;
   parameters: string[];
 };
-
-type TLinksRV = { url: string; text: string }[];
 
 function processTemplate(
   template: any,
@@ -132,37 +129,6 @@ function getParameterInAncestor(name: string, span: Span) {
 
 function callTemplate(template: ProcessedTemplate, data: any) {
   return template.template(data);
-}
-
-function computeTraceLink(linkPatterns: ProcessedLinkPattern[], trace: Trace) {
-  const result: TLinksRV = [];
-  const validKeys = (Object.keys(trace) as (keyof Trace)[]).filter(
-    (key) => typeof trace[key] === 'string' || typeof trace[key] === 'number'
-  );
-
-  linkPatterns
-    .filter((pattern) => pattern.type('traces'))
-    .forEach((pattern) => {
-      const parameterValues: Record<string, any> = {};
-      const allParameters = pattern.parameters.every((parameter) => {
-        const key = parameter as keyof Trace;
-        if (validKeys.includes(key)) {
-          // At this point is safe to access to trace object using parameter variable because
-          // we validated parameter against validKeys, this implies that parameter a keyof Trace.
-          parameterValues[parameter] = trace[key];
-          return true;
-        }
-        return false;
-      });
-      if (allParameters) {
-        result.push({
-          url: callTemplate(pattern.url, parameterValues),
-          text: callTemplate(pattern.text, parameterValues),
-        });
-      }
-    });
-
-  return result;
 }
 
 function computeLinks(

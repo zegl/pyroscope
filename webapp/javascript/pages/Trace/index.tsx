@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/state-in-constructor */
 /* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import _get from 'lodash/get';
@@ -18,7 +20,7 @@ import TraceTimelineViewer from './TraceTimelineViewer';
 import ScrollManager from './ScrollManager';
 import { cancel as cancelScroll, scrollBy, scrollTo } from './scroll-page';
 
-type TProps = TDispatchProps & TOwnProps & TReduxProps;
+type TProps = any;
 
 type TState = {
   headerHeight: number | TNil;
@@ -34,13 +36,13 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
 
   filterSpans: typeof filterSpans;
 
-  _searchBar: React.RefObject<Input>;
+  _searchBar: React.RefObject<any>;
 
   _scrollManager: ScrollManager;
 
   traceDagEV: ShamefulAny | TNil;
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     const { embedded } = props;
 
@@ -65,10 +67,13 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
           'data.spans.length'
         )}`
     );
-    this._scrollManager = new ScrollManager(mockData && mockData.data, {
-      scrollBy,
-      scrollTo,
-    });
+    this._scrollManager = new ScrollManager(
+      mockData && (mockData?.data as any),
+      {
+        scrollBy,
+        scrollTo,
+      }
+    );
   }
 
   setHeaderHeight = (elm: HTMLElement | TNil) => {
@@ -107,31 +112,16 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
   };
 
   render() {
-    const {
-      archiveEnabled,
-      archiveTraceState,
-      embedded,
-      id,
-      uiFind,
-      trace,
-      // location: { state: locationState },
-    } = this.props;
+    const { archiveEnabled, archiveTraceState, embedded, id, uiFind, trace } =
+      this.props;
     const { slimView, viewType, headerHeight, viewRange } = this.state;
-    // const { data } = trace;
 
-    let findCount = 0;
-    let graphFindMatches: Set<string> | null | undefined;
     let spanFindMatches: Set<string> | null | undefined;
     if (uiFind) {
       if (viewType === ETraceViewType.TraceGraph) {
-        graphFindMatches = getUiFindVertexKeys(
-          uiFind,
-          _get(this.traceDagEV, 'vertices', [])
-        );
-        findCount = graphFindMatches ? graphFindMatches.size : 0;
+        //
       } else {
         spanFindMatches = this.filterSpans(uiFind, _get(trace, 'data.spans'));
-        findCount = spanFindMatches ? spanFindMatches.size : 0;
       }
     }
 
@@ -159,7 +149,7 @@ export default class TracePageImpl extends React.PureComponent<TProps, TState> {
       // onTraceViewChange: this.setTraceView,
       // prevResult: this.prevResult,
       ref: this._searchBar,
-      resultCount: findCount,
+      // resultCount: findCount,
       showArchiveButton: !isEmbedded && archiveEnabled,
       showShortcutsHelp: !isEmbedded,
       showStandaloneLink: isEmbedded,
