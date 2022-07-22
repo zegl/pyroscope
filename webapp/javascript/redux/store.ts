@@ -51,6 +51,7 @@ const store = configureStore({
     ...getDefaultMiddleware({
       serializableCheck: {
         ignoredActionPaths: ['error'],
+        ignoredPaths: ['traceTimeline'],
 
         // Based on this issue: https://github.com/rt2zz/redux-persist/issues/988
         // and this guide https://redux-toolkit.js.org/usage/usage-guide#use-with-redux-persist

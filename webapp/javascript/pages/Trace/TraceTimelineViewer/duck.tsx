@@ -76,29 +76,26 @@ export function newInitialState(): TTraceTimeline {
   };
 }
 
-export const actionTypes = generateActionTypes(
-  '@jaeger-ui/trace-timeline-viewer',
-  [
-    'ADD_HOVER_INDENT_GUIDE_ID',
-    'CHILDREN_TOGGLE',
-    'CLEAR_SHOULD_SCROLL_TO_FIRST_UI_FIND_MATCH',
-    'COLLAPSE_ALL',
-    'COLLAPSE_ONE',
-    'DETAIL_TOGGLE',
-    'DETAIL_TAGS_TOGGLE',
-    'DETAIL_PROCESS_TOGGLE',
-    'DETAIL_LOGS_TOGGLE',
-    'DETAIL_LOG_ITEM_TOGGLE',
-    'DETAIL_WARNINGS_TOGGLE',
-    'DETAIL_REFERENCES_TOGGLE',
-    'EXPAND_ALL',
-    'EXPAND_ONE',
-    'FOCUS_UI_FIND_MATCHES',
-    'REMOVE_HOVER_INDENT_GUIDE_ID',
-    'SET_SPAN_NAME_COLUMN_WIDTH',
-    'SET_TRACE',
-  ]
-);
+export const actionTypes = generateActionTypes('trace-timeline-viewer', [
+  'ADD_HOVER_INDENT_GUIDE_ID',
+  'CHILDREN_TOGGLE',
+  'CLEAR_SHOULD_SCROLL_TO_FIRST_UI_FIND_MATCH',
+  'COLLAPSE_ALL',
+  'COLLAPSE_ONE',
+  'DETAIL_TOGGLE',
+  'DETAIL_TAGS_TOGGLE',
+  'DETAIL_PROCESS_TOGGLE',
+  'DETAIL_LOGS_TOGGLE',
+  'DETAIL_LOG_ITEM_TOGGLE',
+  'DETAIL_WARNINGS_TOGGLE',
+  'DETAIL_REFERENCES_TOGGLE',
+  'EXPAND_ALL',
+  'EXPAND_ONE',
+  'FOCUS_UI_FIND_MATCHES',
+  'REMOVE_HOVER_INDENT_GUIDE_ID',
+  'SET_SPAN_NAME_COLUMN_WIDTH',
+  'SET_TRACE',
+]);
 
 const fullActions = createActions<TActionTypes>({
   [actionTypes.ADD_HOVER_INDENT_GUIDE_ID]: (spanID: string) => ({ spanID }),
@@ -135,8 +132,8 @@ const fullActions = createActions<TActionTypes>({
   }),
 });
 
-export const actions = fullActions.jaegerUi
-  .traceTimelineViewer as TTimelineViewerActions;
+export const actions =
+  fullActions.traceTimelineViewer as TTimelineViewerActions;
 
 function calculateFocusedFindRowStates(
   uiFind: string,
