@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button } from 'antd';
+import Button from '@webapp/ui/Button';
 import cx from 'classnames';
 import * as React from 'react';
 
@@ -298,7 +298,6 @@ export default class ViewingLayer extends React.PureComponent<
           <Button
             onClick={this._resetTimeZoomClickHandler}
             className="ViewingLayer--resetZoom"
-            htmlType="button"
           >
             Reset Selection
           </Button>

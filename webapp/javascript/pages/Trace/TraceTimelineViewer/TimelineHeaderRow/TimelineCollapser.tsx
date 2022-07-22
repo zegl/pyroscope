@@ -36,7 +36,6 @@ export default class TimelineCollapser extends React.PureComponent<CollapserProp
     this.containerRef = React.createRef();
   }
 
-  // TODO: Something less hacky than createElement to help TypeScript / AntD
   getContainer = () =>
     this.containerRef.current || document.createElement('div');
 

@@ -14,8 +14,6 @@
 // limitations under the License.
 
 import * as React from 'react';
-
-import { TooltipPlacement } from 'antd/lib/tooltip/index';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import Icon from '@webapp/ui/Icon';
@@ -27,7 +25,7 @@ type PropsType = {
   className?: string;
   copyText: string;
   icon?: string;
-  placement?: TooltipPlacement;
+  placement?: string;
   tooltipTitle: string;
 };
 
@@ -72,20 +70,6 @@ export default class CopyIcon extends React.PureComponent<
       >
         <Icon icon={faCopy} />
       </div>
-      // <Tooltip
-      //   arrowPointAtCenter
-      //   mouseLeaveDelay={0.5}
-      //   onVisibleChange={this.handleTooltipVisibilityChange}
-      //   placement={this.props.placement}
-      //   title={this.state.hasCopied ? 'Copied' : this.props.tooltipTitle}
-      // >
-      //   <Button
-      //     className={cx(this.props.className, 'CopyIcon')}
-      //     htmlType="button"
-      //     icon={this.props.icon}
-      //     onClick={this.handleClick}
-      //   />
-      // </Tooltip>
     );
   }
 }

@@ -14,7 +14,6 @@
 
 import * as React from 'react';
 import BreakableText from './BreakableText';
-import LoadingIndicator from './LoadingIndicator';
 import { FetchedState, TNil, ApiError } from '../types';
 
 import './TraceName.css';
@@ -52,7 +51,7 @@ export default function TraceName(props: Props) {
     title = titleStr;
     title = <BreakableText text={titleStr} />;
   } else if (state === fetchedState.LOADING) {
-    title = <LoadingIndicator small />;
+    title = <div>loading</div>;
   } else {
     const text = String(traceName || FALLBACK_TRACE_NAME);
     title = <BreakableText text={text} />;
