@@ -37,6 +37,10 @@ pyroscopeConfigs:
             [__meta_kubernetes_pod_annotation_pyroscope_io_spy_name]
           action: replace
           target-label: __spy_name__
+        - source-labels:
+            [__meta_kubernetes_pod_annotation_pyroscope_io_scrape_interval]
+          action: replace
+          target-label: __scrape_interval__
         - source-labels: [__meta_kubernetes_pod_annotation_pyroscope_io_scheme]
           action: replace
           regex: (https?)

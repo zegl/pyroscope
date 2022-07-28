@@ -18,6 +18,7 @@ spec:
         pyroscope.io/profile-cpu-enabled: 'true'
         pyroscope.io/profile-mem-enabled: 'true'
         pyroscope.io/port: '6060'
+        pyroscope.io/scrape-interval: '49s'
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
