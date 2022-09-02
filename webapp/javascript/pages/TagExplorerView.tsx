@@ -35,7 +35,7 @@ import {
 } from '@webapp/redux/reducers/continuous';
 import { queryToAppName } from '@webapp/models/query';
 import PageTitle from '@webapp/components/PageTitle';
-import ExploreTooltip from '@webapp/components/TimelineChart/ExploreTooltip';
+import { TooltipBody } from '@webapp/components/TimelineChart/ExploreTooltip';
 import { calculateMean, calculateStdDeviation } from './math';
 import { PAGES } from './constants';
 
@@ -227,17 +227,15 @@ function TagExplorerView() {
                 }
                 height="125px"
                 format="lines"
-                onHoverDisplayTooltip={(data) =>
-                  (
-                    <ExploreTooltip
-                      pageX={data.pageX}
-                      pageY={data.pageY}
-                      align={data.align}
+                onHoverDisplayTooltip={(data) => {
+                  return <div>my tooltip</div>;
+                  return (
+                    <TooltipBody
                       values={data.values}
                       timeLabel={data.timeLabel}
                     />
-                  ) as ShamefulAny
-                }
+                  ) as ShamefulAny;
+                }}
               />
             )}
           </div>

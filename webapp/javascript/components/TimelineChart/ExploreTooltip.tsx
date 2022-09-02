@@ -18,6 +18,7 @@ export interface ExploreTooltipProps {
     color: number[];
     tagName: string;
   }>;
+  children: React.ReactElement;
 }
 
 const ExploreTooltip: FC<ExploreTooltipProps> = ({
@@ -26,6 +27,7 @@ const ExploreTooltip: FC<ExploreTooltipProps> = ({
   align,
   timeLabel,
   values,
+  children,
 }) => {
   const isHidden = useMemo(() => pageX < 0 || pageY < 0, [pageX, pageY]);
 
@@ -51,6 +53,16 @@ const ExploreTooltip: FC<ExploreTooltipProps> = ({
       })}
       id={EXPLORE_TOOLTIP_WRAPPER_ID}
     >
+      {React.cloneElement(children, { values, timeLabel })}
+    </div>
+  );
+};
+
+export const TooltipBody: FC<
+  Pick<ExploreTooltipProps, 'timeLabel' | 'values'>
+> = ({ timeLabel, values }) => {
+  return (
+    <>
       <div className={styles.time}>{timeLabel}</div>
       {values?.length
         ? values.map((v) => {
@@ -68,7 +80,7 @@ const ExploreTooltip: FC<ExploreTooltipProps> = ({
             );
           })
         : null}
-    </div>
+    </>
   );
 };
 

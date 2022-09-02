@@ -10,6 +10,7 @@ import Legend from '@webapp/pages/tagExplorer/components/Legend';
 import type { ExploreTooltipProps } from '@webapp/components/TimelineChart/ExploreTooltip';
 import TimelineChart from './TimelineChart';
 import styles from './TimelineChartWrapper.module.css';
+import ExploreTooltip from '@webapp/components/TimelineChart/ExploreTooltip';
 
 export interface TimelineGroupData {
   data: Group;
@@ -237,7 +238,14 @@ class TimelineChartWrapper extends React.Component<
 
       const customFlotOptions = {
         ...flotOptions,
-        onHoverDisplayTooltip: this.props?.onHoverDisplayTooltip,
+        onHoverDisplayTooltip: (props) => {
+          if (this.props.onHoverDisplayTooltip) {
+            const body = this.props?.onHoverDisplayTooltip(props);
+            return <ExploreTooltip {...props}>{body}</ExploreTooltip>;
+          }
+
+          return null;
+        },
         xaxis: {
           ...flotOptions.xaxis,
           autoscaleMargin: null,
