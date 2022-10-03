@@ -12,12 +12,15 @@ spec:
         app: hotrod-golang
         app.kubernetes.io/name: hotrod-golang
       annotations:
-        pyroscope.io/scrape: 'true'
-        pyroscope.io/application-name: 'hotrod'
-        pyroscope.io/spy-name: 'gospy'
-        pyroscope.io/profile-cpu-enabled: 'true'
-        pyroscope.io/profile-mem-enabled: 'true'
-        pyroscope.io/port: '6060'
+        mon_scrape: 'true'
+        mon_port: '6060'
+
+     #   pyroscope.io/scrape: 'true'
+     #   pyroscope.io/application-name: 'hotrod'
+     #   pyroscope.io/spy-name: 'gospy'
+     #   pyroscope.io/profile-cpu-enabled: 'true'
+     #   pyroscope.io/profile-mem-enabled: 'true'
+     #   pyroscope.io/port: '6060'
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
