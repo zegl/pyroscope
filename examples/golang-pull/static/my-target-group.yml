@@ -1,0 +1,12 @@
+- application: hotrod
+  spy-name: gospy
+  targets:
+    - hotrod:6060
+  labels:
+    env: dev
+- application: last-app
+  spy-name: gospy
+  targets:
+    - app:6060
+  labels:
+    env: dev
