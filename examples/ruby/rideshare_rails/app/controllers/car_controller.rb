@@ -1,8 +1,8 @@
 class CarController < ApplicationController
   def index
-    OpenTelemetry.tracer_provider.tracer('my-tracer').in_span("CarController") do |_|
-      helpers.find_nearest_vehicle(0.5, "car")
-      render html: "Car ordered"
-    end
+    helpers.find_nearest_vehicle(0.5, "car")
+    i = 0; while i < MULTIPLIER * 3; i += 1; end
+    logger_debug "Car ordered"
+    render html: "Car ordered"
   end
 end

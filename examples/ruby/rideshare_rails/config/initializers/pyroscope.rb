@@ -11,6 +11,7 @@ Pyroscope.configure do |config|
 
   config.tags = {
     "region": ENV["REGION"] || "us-east",
+    "compression": ENV["COMPRESSION"],
   }
 end
 

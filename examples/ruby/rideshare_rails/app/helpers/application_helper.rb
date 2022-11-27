@@ -1,41 +1,39 @@
+
 require "pyroscope"
 
 module ApplicationHelper
-  def mutex_lock(n)
-    i = 0
-    start_time = Time.new
-    while Time.new - start_time < n * 10 do
-      i += 1
-    end
-  end
+  extend Drivers::DriversHelper
+  extend Strings::StringsHelper
+  extend Logging::LoggingHelper
+  extend Mutexes::MutexesHelper
 
   def check_driver_availability(n)
-    i = 0
-    start_time = Time.new
-    while Time.new - start_time < n / 2 do
-      i += 1
-    end
+    current_minute = Time.new.strftime('%M').to_i
+    force_mutex_lock = (current_minute % 2) == 0
 
-    # Every 4 minutes this will artificially create make requests in eu-north region slow
-    # this is just for demonstration purposes to show how performance impacts show up in the
-    # flamegraph
-    current_time = Time.now
-    current_minute = current_time.strftime('%M').to_i
-    force_mutex_lock = (current_minute * 4 % 8) == 0
-
+    i = 0; while i < MULTIPLIER * 5; i += 1; end
     mutex_lock(n) if ENV["REGION"] == "eu-north" and force_mutex_lock
   end
 
   def find_nearest_vehicle(n, vehicle)
-    Pyroscope.tag_wrapper({ "vehicle" => vehicle }) do
-      i = 0
-      start_time = Time.new
-      while Time.new - start_time < n do
-        i += 1
-      end
-
-      check_driver_availability(n) if vehicle == "car"
-    end
+    logger_debug("find_nearest_vehicle")
+    i = 0; while i < MULTIPLIER * 0.25; i += 1; end
+    traverse_vehicle_options(n, vehicle)
   end
 
+  def traverse_vehicle_options(n, vehicle)
+    logger_debug("traverse_vehicle_options")
+    i = 0; while i < MULTIPLIER * 0.33; i += 1; end
+    compile_options(n, vehicle)
+  end
+
+  def compile_options(n, vehicle)
+    logger_debug("compile_options")
+    i = 0; while i < MULTIPLIER * 0.2; i += 1; end
+    build_list_of_options
+    if vehicle == "car"
+      check_driver_availability(n)
+      prepare_drivers_response
+    end
+  end
 end

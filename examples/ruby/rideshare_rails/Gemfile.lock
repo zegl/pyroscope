@@ -66,6 +66,7 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    brotli (0.4.0)
     builder (3.2.4)
     concurrent-ruby (1.1.10)
     crass (1.0.6)
@@ -231,6 +232,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  brotli
   debug
   opentelemetry-exporter-jaeger (~> 0.22.0)
   opentelemetry-instrumentation-rails
