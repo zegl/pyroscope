@@ -3,6 +3,7 @@ package tree
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/pyroscope-io/pyroscope/pkg/stackbuilder"
 	"github.com/pyroscope-io/pyroscope/pkg/util/arenahelper"
 	"math/big"
 	"sort"
@@ -272,6 +273,44 @@ func (t *Tree) Iterate(cb func(key []byte, val uint64)) {
 		for i := 0; i < len(node.ChildrenNodes); i++ {
 			prefixes = prependBytes(prefixes, label)
 		}
+	}
+}
+
+func (t *Tree) IterateWithStackBuilder(sb stackbuilder.StackBuilder, cb func(stackID uint64, val uint64)) {
+	type indexNode struct {
+		index int
+		node  *treeNode
+	}
+	var ss [128]indexNode
+	s := ss[:0]
+	s = append(s, indexNode{0, t.root})
+	for {
+		size := len(s)
+		if size == 0 {
+			break
+		}
+		h := &s[len(s)-1]
+		nc := len(h.node.ChildrenNodes)
+		if nc == 0 {
+			if size > 1 {
+				stackID := sb.Build()
+				cb(stackID, h.node.Total)
+				sb.Pop()
+			}
+			s = s[0 : len(s)-1]
+			continue
+		}
+		if h.index >= nc {
+			s = s[0 : len(s)-1]
+			if size > 1 {
+				sb.Pop()
+			}
+			continue
+		}
+		c := h.node.ChildrenNodes[h.index]
+		s = append(s, indexNode{0, c})
+		sb.Push(c.Name)
+		h.index++
 	}
 }
 
