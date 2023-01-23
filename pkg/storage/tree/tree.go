@@ -283,34 +283,35 @@ func (t *Tree) IterateWithStackBuilder(sb stackbuilder.StackBuilder, cb func(sta
 	}
 	var ss [128]indexNode
 	s := ss[:0]
-	s = append(s, indexNode{0, t.root})
-	for {
-		size := len(s)
-		if size == 0 {
-			break
+	for i := 0; i < len(t.root.ChildrenNodes); i++ {
+		{
+			c := t.root.ChildrenNodes[i]
+			s = append(s, indexNode{0, c})
+			sb.Push(c.Name)
 		}
-		h := &s[len(s)-1]
-		nc := len(h.node.ChildrenNodes)
-		if nc == 0 {
-			if size > 1 {
+		for {
+			if len(s) == 0 {
+				break
+			}
+			h := &s[len(s)-1]
+			nc := len(h.node.ChildrenNodes)
+			if nc == 0 {
 				stackID := sb.Build()
 				cb(stackID, h.node.Total)
 				sb.Pop()
+				s = s[0 : len(s)-1]
+				continue
 			}
-			s = s[0 : len(s)-1]
-			continue
-		}
-		if h.index >= nc {
-			s = s[0 : len(s)-1]
-			if size > 1 {
+			if h.index >= nc {
+				s = s[0 : len(s)-1]
 				sb.Pop()
+				continue
 			}
-			continue
+			c := h.node.ChildrenNodes[h.index]
+			s = append(s, indexNode{0, c})
+			sb.Push(c.Name)
+			h.index++
 		}
-		c := h.node.ChildrenNodes[h.index]
-		s = append(s, indexNode{0, c})
-		sb.Push(c.Name)
-		h.index++
 	}
 }
 
