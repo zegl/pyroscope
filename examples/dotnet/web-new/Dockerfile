@@ -1,28 +1,38 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as builder
 
-WORKDIR /dotnet
+WORKDIR /sln
 
-RUN wget https://github.com/pyroscope-io/pyroscope-dotnet/releases/download/v0.7.0/Pyroscope.Linux.ApiWrapper.x64.so
-RUN wget https://github.com/pyroscope-io/pyroscope-dotnet/releases/download/v0.7.0/Pyroscope.Profiler.Native.so
+# Copy project file and restore
+COPY "example/Example.csproj" "."
+RUN dotnet restore "Example.csproj" 
 
-ADD example .
 
-RUN dotnet publish -o . -r $(dotnet --info | grep RID | cut -b 6- | tr -d ' ')
+# Copy the actual source code
+COPY "example" "."
 
-ENV PYROSCOPE_APPLICATION_NAME=web.dotnet.app
-ENV PYROSCOPE_SERVER_ADDRESS=http://pyroscope:4040
-ENV PYROSCOPE_LOG_LEVEL=debug
+
+
+# Build and publish the app
+RUN dotnet publish "Example.csproj" -c Release -o /app/publish --self-contained false --no-restore
+
+
+
+
+#FINAL image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY --from=builder /app/publish .
+
+# Set up Pyroscope profiling
+
+ADD https://github.com/pyroscope-io/pyroscope-dotnet/releases/download/v0.7.2-pyroscope/Pyroscope.Linux.ApiWrapper.x64.so /lib/Pyroscope.Linux.ApiWrapper.x64.so
+ADD https://github.com/pyroscope-io/pyroscope-dotnet/releases/download/v0.7.2-pyroscope/Pyroscope.Profiler.Native.so /lib/Pyroscope.Profiler.Native.so
+ENV PYROSCOPE_APPLICATION_NAME=test.dotnet.app
+ENV PYROSCOPE_SERVER_ADDRESS=http://pyroscope-route:80
+ENV PYROSCOPE_PROFILING_ENABLED=1
 ENV CORECLR_ENABLE_PROFILING=1
 ENV CORECLR_PROFILER={BD1A650D-AC5D-4896-B64F-D6FA25D6B26A}
-ENV CORECLR_PROFILER_PATH=/dotnet/Pyroscope.Profiler.Native.so
-ENV LD_PRELOAD=/dotnet/Pyroscope.Linux.ApiWrapper.x64.so
-ENV PROFILING_ENABLED=1
-ENV PROFILING_ALLOCATION_ENABLED=true
-ENV PROFILING_CONTENTION_ENABLED=true
-ENV PROFILING_EXCEPTION_ENABLED=true
+ENV CORECLR_PROFILER_PATH=/lib/Pyroscope.Profiler.Native.so
+ENV LD_PRELOAD=/lib/Pyroscope.Linux.ApiWrapper.x64.so
 
-
-RUN adduser --disabled-password --gecos --quiet pyroscope
-USER pyroscope
-
-CMD ["dotnet", "/dotnet/example.dll"]
+ENTRYPOINT ["dotnet", "example.dll"]
