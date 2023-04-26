@@ -3,7 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "Prometheus",
+        "datasource": "Prometheus ",
         "enable": true,
         "expr": "changes(benchmark[5s]) > 0",
         "hide": true,
