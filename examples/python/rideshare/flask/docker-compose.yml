@@ -29,7 +29,7 @@ services:
     environment:
       - PYROSCOPE_LOG_LEVEL=debug
     ports:
-      - '4040:4040'
+      - '4031:4031'
     command:
       - 'server'
 

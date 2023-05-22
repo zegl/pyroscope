@@ -6,14 +6,19 @@ from bike.bike import order_bike
 from car.car import order_car
 from scooter.scooter import order_scooter
 
-app_name = os.getenv("PYROSCOPE_APPLICATION_NAME", "flask-ride-sharing-app")
-server_addr = os.getenv("PYROSCOPE_SERVER_ADDRESS", "http://pyroscope:4040")
-auth_token = os.getenv("PYROSCOPE_AUTH_TOKEN", "")
+
+application_name = os.getenv("PYROSCOPE_APPLICATION_NAME", "flask-ride-sharing-app")
+
+# Note: If using Grafana Cloud Profiles you'll need to replace the server_address with the one provided in the UI
+server_address = os.getenv("PYROSCOPE_SERVER_ADDRESS", "http://pyroscope:4040")
+basic_auth_username = os.getenv("PYROSCOPE_BASIC_AUTH_USERNAME", "")
+basic_auth_password = os.getenv("PYROSCOPE_BASIC_AUTH_PASSWORD", "")
 
 pyroscope.configure(
-	application_name = app_name,
-	server_address   = server_addr,
-    auth_token       = auth_token,
+	application_name = application_name,
+    server_address = server_address,
+    basic_auth_username=basic_auth_username,
+    basic_auth_password=basic_auth_password,
 	tags             = {
         "region":   f'{os.getenv("REGION")}',
 	}
