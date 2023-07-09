@@ -230,7 +230,7 @@ func (s *Session) attachPerfEvent() error {
 			Type:   unix.PERF_TYPE_SOFTWARE,
 			Config: unix.PERF_COUNT_SW_CPU_CLOCK,
 			Bits:   unix.PerfBitFreq,
-			Sample: uint64(s.sampleRate),
+			Sample: 5,
 		}
 		fd, err := unix.PerfEventOpen(&attr, -1, int(cpu), -1, unix.PERF_FLAG_FD_CLOEXEC)
 		if err != nil {
@@ -262,9 +262,11 @@ func (s *Session) walkStack(line *bytes.Buffer, stack []byte, pid uint32, usersp
 		return
 	}
 	var stackFrames []string
+	fmt.Printf("stack: pid=%d\n", pid)
 	for i := 0; i < 127; i++ {
 		it := stack[i*8 : i*8+8]
 		ip := binary.LittleEndian.Uint64(it)
+		fmt.Printf("ip: %x\n", ip)
 		if ip == 0 {
 			break
 		}
