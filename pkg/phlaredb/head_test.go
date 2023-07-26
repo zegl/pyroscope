@@ -22,6 +22,7 @@ import (
 	typesv1 "github.com/grafana/pyroscope/api/gen/proto/go/types/v1"
 	phlaremodel "github.com/grafana/pyroscope/pkg/model"
 	phlarecontext "github.com/grafana/pyroscope/pkg/phlare/context"
+	"github.com/grafana/pyroscope/pkg/phlaredb/symdb/v1"
 	"github.com/grafana/pyroscope/pkg/pprof"
 )
 
@@ -223,10 +224,10 @@ func TestHeadIngestFunctions(t *testing.T) {
 	require.NoError(t, head.Ingest(context.Background(), newProfileBaz(), uuid.New()))
 
 	require.Equal(t, 3, len(head.functions.slice))
-	helper := &functionsHelper{}
-	assert.Equal(t, functionsKey{Name: 3}, helper.key(head.functions.slice[0]))
-	assert.Equal(t, functionsKey{Name: 4}, helper.key(head.functions.slice[1]))
-	assert.Equal(t, functionsKey{Name: 7}, helper.key(head.functions.slice[2]))
+	helper := &v1.functionsHelper{}
+	assert.Equal(t, v1.functionsKey{Name: 3}, helper.key(head.functions.slice[0]))
+	assert.Equal(t, v1.functionsKey{Name: 4}, helper.key(head.functions.slice[1]))
+	assert.Equal(t, v1.functionsKey{Name: 7}, helper.key(head.functions.slice[2]))
 }
 
 func TestHeadIngestStrings(t *testing.T) {
@@ -236,17 +237,17 @@ func TestHeadIngestStrings(t *testing.T) {
 	r := &rewriter{}
 	require.NoError(t, head.strings.ingest(ctx, newProfileFoo().StringTable, r))
 	require.Equal(t, []string{"", "unit", "type", "func_a", "func_b", "my-foo-binary"}, head.strings.slice)
-	require.Equal(t, stringConversionTable{0, 1, 2, 3, 4, 5}, r.strings)
+	require.Equal(t, v1.stringConversionTable{0, 1, 2, 3, 4, 5}, r.strings)
 
 	r = &rewriter{}
 	require.NoError(t, head.strings.ingest(ctx, newProfileBar().StringTable, r))
 	require.Equal(t, []string{"", "unit", "type", "func_a", "func_b", "my-foo-binary", "my-bar-binary"}, head.strings.slice)
-	require.Equal(t, stringConversionTable{0, 1, 2, 4, 3, 6}, r.strings)
+	require.Equal(t, v1.stringConversionTable{0, 1, 2, 4, 3, 6}, r.strings)
 
 	r = &rewriter{}
 	require.NoError(t, head.strings.ingest(ctx, newProfileBaz().StringTable, r))
 	require.Equal(t, []string{"", "unit", "type", "func_a", "func_b", "my-foo-binary", "my-bar-binary", "func_c"}, head.strings.slice)
-	require.Equal(t, stringConversionTable{0, 7}, r.strings)
+	require.Equal(t, v1.stringConversionTable{0, 7}, r.strings)
 }
 
 func TestHeadIngestStacktraces(t *testing.T) {

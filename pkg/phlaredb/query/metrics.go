@@ -33,7 +33,7 @@ func AddMetricsToContext(ctx context.Context, m *Metrics) context.Context {
 	return context.WithValue(ctx, metricsContextKey, m)
 }
 
-func getMetricsFromContext(ctx context.Context) *Metrics {
+func GetMetricsFromContext(ctx context.Context) *Metrics {
 	m, ok := ctx.Value(metricsContextKey).(*Metrics)
 	if !ok {
 		return NewMetrics(nil)

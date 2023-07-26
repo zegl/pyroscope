@@ -36,25 +36,15 @@ import (
 	"github.com/grafana/pyroscope/pkg/iter"
 	phlaremodel "github.com/grafana/pyroscope/pkg/model"
 	phlareobj "github.com/grafana/pyroscope/pkg/objstore"
-	parquetobj "github.com/grafana/pyroscope/pkg/objstore/parquet"
 	phlarecontext "github.com/grafana/pyroscope/pkg/phlare/context"
 	"github.com/grafana/pyroscope/pkg/phlaredb/block"
 	"github.com/grafana/pyroscope/pkg/phlaredb/query"
 	schemav1 "github.com/grafana/pyroscope/pkg/phlaredb/schemas/v1"
-	"github.com/grafana/pyroscope/pkg/phlaredb/symdb"
 	"github.com/grafana/pyroscope/pkg/phlaredb/tsdb/index"
 	"github.com/grafana/pyroscope/pkg/util"
 )
 
-const (
-	defaultBatchSize      = 4096
-	parquetReadBufferSize = 2 * 1024 * 1024 // 2MB
-)
-
-type tableReader interface {
-	open(ctx context.Context, bucketReader phlareobj.BucketReader) error
-	io.Closer
-}
+const defaultBatchSize = 4096
 
 type BlockQuerier struct {
 	phlarectx context.Context
@@ -258,30 +248,6 @@ func (b *BlockQuerier) Close() error {
 	return errs.Err()
 }
 
-type TableInfo struct {
-	Rows      uint64
-	RowGroups uint64
-	Bytes     uint64
-}
-
-type BlockInfo struct {
-	ID          ulid.ULID
-	MinTime     model.Time
-	MaxTime     model.Time
-	Profiles    TableInfo
-	Stacktraces TableInfo
-	Locations   TableInfo
-	Functions   TableInfo
-	Mappings    TableInfo
-	Strings     TableInfo
-	Series      uint64
-}
-
-func (b *BlockQuerier) BlockInfo() []BlockInfo {
-	result := make([]BlockInfo, len(b.queriers))
-	return result
-}
-
 type singleBlockQuerier struct {
 	logger  log.Logger
 	metrics *blocksMetrics
@@ -289,108 +255,19 @@ type singleBlockQuerier struct {
 	bkt  phlareobj.Bucket
 	meta *block.Meta
 
-	tables []tableReader
-
-	openLock    sync.Mutex
-	opened      bool
-	index       *index.Reader
-	strings     inMemoryparquetReader[string, *schemav1.StringPersister]
-	functions   inMemoryparquetReader[*schemav1.InMemoryFunction, *schemav1.FunctionPersister]
-	locations   inMemoryparquetReader[*schemav1.InMemoryLocation, *schemav1.LocationPersister]
-	mappings    inMemoryparquetReader[*schemav1.InMemoryMapping, *schemav1.MappingPersister]
-	profiles    parquetReader[*schemav1.Profile, *schemav1.ProfilePersister]
-	stacktraces StacktraceDB
+	openLock sync.Mutex
+	opened   bool
+	index    *index.Reader
+	profiles query.ParquetReader[*schemav1.Profile, *schemav1.ProfilePersister]
+	symdb    symbolsReader
 }
 
-type StacktraceDB interface {
-	Open(ctx context.Context) error
-	Close() error
+type symbolsReader interface {
+	Open(context.Context, phlareobj.BucketReader) error
+	io.Closer
 
-	// Load the database into memory entirely.
-	// This method is used at compaction.
-	Load(context.Context) error
-	WriteStats(partition uint64, s *symdb.Stats)
-
-	Resolve(ctx context.Context, partition uint64, locs symdb.StacktraceInserter, stacktraceIDs []uint32) error
-}
-
-type stacktraceResolverV1 struct {
-	stacktraces  parquetReader[*schemav1.Stacktrace, *schemav1.StacktracePersister]
-	bucketReader phlareobj.Bucket
-}
-
-func (r *stacktraceResolverV1) Open(ctx context.Context) error {
-	return r.stacktraces.open(ctx, r.bucketReader)
-}
-
-func (r *stacktraceResolverV1) Close() error {
-	return r.stacktraces.Close()
-}
-
-func (r *stacktraceResolverV1) Resolve(ctx context.Context, _ uint64, locs symdb.StacktraceInserter, stacktraceIDs []uint32) error {
-	stacktraces := repeatedColumnIter(ctx, r.stacktraces.file, "LocationIDs.list.element", iter.NewSliceIterator(stacktraceIDs))
-	defer stacktraces.Close()
-	t := make([]int32, 0, 64)
-	for stacktraces.Next() {
-		s := stacktraces.At()
-		t = grow(t, len(s.Values))
-		for i, v := range s.Values {
-			t[i] = v.Int32()
-		}
-		locs.InsertStacktrace(s.Row, t)
-	}
-	return stacktraces.Err()
-}
-
-func (r *stacktraceResolverV1) WriteStats(_ uint64, s *symdb.Stats) {
-	s.StacktracesTotal = int(r.stacktraces.file.NumRows())
-	s.MaxStacktraceID = s.StacktracesTotal
-}
-
-func (r *stacktraceResolverV1) Load(context.Context) error {
-	// FIXME(kolesnikovae): Loading all stacktraces from parquet file
-	//  into memory is likely a bad choice. Instead we could convert
-	//  it to symdb first.
-	return nil
-}
-
-type stacktraceResolverV2 struct {
-	reader       *symdb.Reader
-	bucketReader phlareobj.Bucket
-}
-
-func (r *stacktraceResolverV2) Open(ctx context.Context) error {
-	if r.reader != nil {
-		return nil
-	}
-	var err error
-	r.reader, err = symdb.Open(ctx, r.bucketReader)
-	return err
-}
-
-func (r *stacktraceResolverV2) Close() error {
-	return nil
-}
-
-func (r *stacktraceResolverV2) Resolve(ctx context.Context, partition uint64, locs symdb.StacktraceInserter, stacktraceIDs []uint32) error {
-	mr, ok := r.reader.SymbolsResolver(partition)
-	if !ok {
-		return nil
-	}
-	resolver := mr.StacktraceResolver()
-	defer resolver.Release()
-	return resolver.ResolveStacktraces(ctx, locs, stacktraceIDs)
-}
-
-func (r *stacktraceResolverV2) Load(ctx context.Context) error {
-	return r.reader.Load(ctx)
-}
-
-func (r *stacktraceResolverV2) WriteStats(partition uint64, s *symdb.Stats) {
-	mr, ok := r.reader.SymbolsResolver(partition)
-	if ok {
-		mr.WriteStats(s)
-	}
+	ResolveSymbols(context.Context, phlaremodel.StacktracesByPartition) (*ingestv1.MergeProfilesStacktracesResult, error)
+	ResolvePprofSymbols(context.Context, phlaremodel.ProfileSampleByPartition) (*profile.Profile, error)
 }
 
 func NewSingleBlockQuerierFromMeta(phlarectx context.Context, bucketReader phlareobj.Bucket, meta *block.Meta) *singleBlockQuerier {
@@ -401,33 +278,21 @@ func NewSingleBlockQuerierFromMeta(phlarectx context.Context, bucketReader phlar
 		bkt:  phlareobj.NewPrefixedBucket(bucketReader, meta.ULID.String()),
 		meta: meta,
 	}
+
+	profilesFilePath := q.profiles.RelPath()
 	for _, f := range meta.Files {
-		switch f.RelPath {
-		case q.profiles.relPath():
-			q.profiles.size = int64(f.SizeBytes)
-		case q.locations.relPath():
-			q.locations.size = int64(f.SizeBytes)
-		case q.functions.relPath():
-			q.functions.size = int64(f.SizeBytes)
-		case q.mappings.relPath():
-			q.mappings.size = int64(f.SizeBytes)
-		case q.strings.relPath():
-			q.strings.size = int64(f.SizeBytes)
+		if f.RelPath == profilesFilePath {
+			q.profiles.SetSize(int64(f.SizeBytes))
 		}
 	}
-	q.tables = []tableReader{
-		&q.strings,
-		&q.mappings,
-		&q.functions,
-		&q.locations,
-		&q.profiles,
-	}
+
 	switch meta.Version {
 	case block.MetaVersion1:
-		q.stacktraces = newStacktraceResolverV1(q.bkt, meta)
+		q.symdb = newStacktraceResolverV1(q.bkt)
 	case block.MetaVersion2:
-		br := phlareobj.NewPrefixedBucket(q.bkt, symdb.DefaultDirName)
-		q.stacktraces = newStacktraceResolverV2(br)
+		// TODO: Wrap
+		// br := phlareobj.NewPrefixedBucket(q.bkt, symdb.DefaultDirName)
+		// q.symdb = symdb.Open(phlarectx, br)
 	default:
 		panic(fmt.Errorf("unsupported block version %d", meta.Version))
 	}
@@ -435,27 +300,8 @@ func NewSingleBlockQuerierFromMeta(phlarectx context.Context, bucketReader phlar
 	return q
 }
 
-func newStacktraceResolverV1(bucketReader phlareobj.Bucket, meta *block.Meta) StacktraceDB {
-	q := &stacktraceResolverV1{
-		bucketReader: bucketReader,
-	}
-	for _, f := range meta.Files {
-		switch f.RelPath {
-		case q.stacktraces.relPath():
-			q.stacktraces.size = int64(f.SizeBytes)
-		}
-	}
-	return q
-}
-
-func newStacktraceResolverV2(bucketReader phlareobj.Bucket) StacktraceDB {
-	return &stacktraceResolverV2{
-		bucketReader: bucketReader,
-	}
-}
-
 func (b *singleBlockQuerier) Profiles() []parquet.RowGroup {
-	return b.profiles.file.RowGroups()
+	return b.profiles.File().RowGroups()
 }
 
 func (b *singleBlockQuerier) Index() IndexReader {
@@ -465,12 +311,6 @@ func (b *singleBlockQuerier) Index() IndexReader {
 func (b *singleBlockQuerier) Symbols() SymbolsReader {
 	return &inMemorySymbolsReader{
 		partitions: make(map[uint64]*inMemorySymbolsResolver),
-
-		strings:     b.strings,
-		functions:   b.functions,
-		locations:   b.locations,
-		mappings:    b.mappings,
-		stacktraces: b.stacktraces,
 	}
 }
 
@@ -495,14 +335,11 @@ func (b *singleBlockQuerier) Close() error {
 			errs.Add(err)
 		}
 	}
-
-	for _, t := range b.tables {
-		if err := t.Close(); err != nil {
-			errs.Add(err)
-		}
+	if err := b.profiles.Close(); err != nil {
+		errs.Add(err)
 	}
-	if b.stacktraces != nil {
-		if err := b.stacktraces.Close(); err != nil {
+	if b.symdb != nil {
+		if err := b.symdb.Close(); err != nil {
 			errs.Add(err)
 		}
 	}
@@ -996,15 +833,15 @@ func (b *singleBlockQuerier) SelectMatchingProfiles(ctx context.Context, params 
 
 	pIt := query.NewBinaryJoinIterator(
 		0,
-		b.profiles.columnIter(ctx, "SeriesIndex", query.NewMapPredicate(lblsPerRef), "SeriesIndex"),
-		b.profiles.columnIter(ctx, "TimeNanos", query.NewIntBetweenPredicate(model.Time(params.Start).UnixNano(), model.Time(params.End).UnixNano()), "TimeNanos"),
+		b.profiles.ColumnIter(ctx, "SeriesIndex", query.NewMapPredicate(lblsPerRef), "SeriesIndex"),
+		b.profiles.ColumnIter(ctx, "TimeNanos", query.NewIntBetweenPredicate(model.Time(params.Start).UnixNano(), model.Time(params.End).UnixNano()), "TimeNanos"),
 	)
 
 	if b.meta.Version >= 2 {
 		pIt = query.NewBinaryJoinIterator(
 			0,
 			pIt,
-			b.profiles.columnIter(ctx, "StacktracePartition", nil, "StacktracePartition"),
+			b.profiles.ColumnIter(ctx, "StacktracePartition", nil, "StacktracePartition"),
 		)
 		buf = make([][]parquet.Value, 3)
 	} else {
@@ -1051,20 +888,6 @@ func (b *singleBlockQuerier) Sort(in []Profile) []Profile {
 	return in
 }
 
-type uniqueIDs[T any] map[int64]T
-
-func newUniqueIDs[T any]() uniqueIDs[T] {
-	return uniqueIDs[T](make(map[int64]T))
-}
-
-func (m uniqueIDs[T]) iterator() iter.Iterator[int64] {
-	ids := lo.Keys(m)
-	sort.Slice(ids, func(i, j int) bool {
-		return ids[i] < ids[j]
-	})
-	return iter.NewSliceIterator(ids)
-}
-
 func newByteSliceFromBucketReader(ctx context.Context, bucketReader objstore.BucketReader, path string) (index.RealByteSlice, error) {
 	f, err := bucketReader.Get(ctx, path)
 	if err != nil {
@@ -1076,7 +899,7 @@ func newByteSliceFromBucketReader(ctx context.Context, bucketReader objstore.Buc
 		return nil, err
 	}
 
-	return index.RealByteSlice(data), nil
+	return data, nil
 }
 
 func (q *singleBlockQuerier) Open(ctx context.Context) error {
@@ -1122,250 +945,12 @@ func (q *singleBlockQuerier) openFiles(ctx context.Context) error {
 	}))
 
 	// open parquet files
-	for _, tableReader := range q.tables {
-		tableReader := tableReader
-		g.Go(util.RecoverPanic(func() error {
-			if err := tableReader.open(contextWithBlockMetrics(ctx, q.metrics), q.bkt); err != nil {
-				return err
-			}
-			return nil
-		}))
-	}
 	g.Go(util.RecoverPanic(func() error {
-		if err := q.stacktraces.Open(ctx); err != nil {
-			return errors.Wrap(err, "opening stack traces")
-		}
-		return nil
+		return q.profiles.Open(query.AddMetricsToContext(ctx, q.metrics.query), q.bkt)
+	}))
+	g.Go(util.RecoverPanic(func() error {
+		return q.symdb.Open(query.AddMetricsToContext(ctx, q.metrics.query), q.bkt)
 	}))
 
 	return g.Wait()
-}
-
-type parquetReader[M Models, P schemav1.PersisterName] struct {
-	persister P
-	file      *parquet.File
-	reader    phlareobj.ReaderAtCloser
-	size      int64
-	metrics   *blocksMetrics
-}
-
-func (r *parquetReader[M, P]) open(ctx context.Context, bucketReader phlareobj.BucketReader) error {
-	r.metrics = contextBlockMetrics(ctx)
-	filePath := r.persister.Name() + block.ParquetSuffix
-
-	if r.size == 0 {
-		attrs, err := bucketReader.Attributes(ctx, filePath)
-		if err != nil {
-			return errors.Wrapf(err, "getting attributes for '%s'", filePath)
-		}
-		r.size = attrs.Size
-	}
-	// the same reader is used to serve all requests, so we pass context.Background() here
-	ra, err := bucketReader.ReaderAt(context.Background(), filePath)
-	if err != nil {
-		return errors.Wrapf(err, "create reader '%s'", filePath)
-	}
-	ra = parquetobj.NewOptimizedReader(ra)
-	r.reader = ra
-
-	// first try to open file, this is required otherwise OpenFile panics
-	parquetFile, err := parquet.OpenFile(ra, r.size, parquet.SkipPageIndex(true), parquet.SkipBloomFilters(true))
-	if err != nil {
-		return errors.Wrapf(err, "opening parquet file '%s'", filePath)
-	}
-	if parquetFile.NumRows() == 0 {
-		return fmt.Errorf("error parquet file '%s' contains no rows", filePath)
-	}
-	opts := []parquet.FileOption{
-		parquet.SkipBloomFilters(true), // we don't use bloom filters
-		parquet.FileReadMode(parquet.ReadModeAsync),
-		parquet.ReadBufferSize(parquetReadBufferSize),
-	}
-	// now open it for real
-	r.file, err = parquet.OpenFile(ra, r.size, opts...)
-	if err != nil {
-		return errors.Wrapf(err, "opening parquet file '%s'", filePath)
-	}
-
-	return nil
-}
-
-func (r *parquetReader[M, P]) Close() error {
-	if r.reader != nil {
-		return r.reader.Close()
-	}
-	r.reader = nil
-	r.file = nil
-	return nil
-}
-
-func (r *parquetReader[M, P]) relPath() string {
-	return r.persister.Name() + block.ParquetSuffix
-}
-
-func (r *parquetReader[M, P]) columnIter(ctx context.Context, columnName string, predicate query.Predicate, alias string) query.Iterator {
-	index, _ := query.GetColumnIndexByPath(r.file, columnName)
-	if index == -1 {
-		return query.NewErrIterator(fmt.Errorf("column '%s' not found in parquet file '%s'", columnName, r.relPath()))
-	}
-	ctx = query.AddMetricsToContext(ctx, r.metrics.query)
-	return query.NewSyncIterator(ctx, r.file.RowGroups(), index, columnName, 1000, predicate, alias)
-}
-
-func repeatedColumnIter[T any](ctx context.Context, source Source, columnName string, rows iter.Iterator[T]) iter.Iterator[*query.RepeatedRow[T]] {
-	column, found := source.Schema().Lookup(strings.Split(columnName, ".")...)
-	if !found {
-		return iter.NewErrIterator[*query.RepeatedRow[T]](fmt.Errorf("column '%s' not found in parquet file", columnName))
-	}
-
-	opentracing.SpanFromContext(ctx).SetTag("columnName", columnName)
-	return query.NewRepeatedPageIterator(ctx, rows, source.RowGroups(), column.ColumnIndex, 1e4)
-}
-
-type ResultWithRowNum[M any] struct {
-	Result M
-	RowNum int64
-}
-
-type inMemoryparquetReader[M Models, P schemav1.Persister[M]] struct {
-	persister P
-	file      *parquet.File
-	size      int64
-	reader    phlareobj.ReaderAtCloser
-	cache     []M
-}
-
-func (r *inMemoryparquetReader[M, P]) open(ctx context.Context, bucketReader phlareobj.BucketReader) error {
-	filePath := r.persister.Name() + block.ParquetSuffix
-
-	if r.size == 0 {
-		attrs, err := bucketReader.Attributes(ctx, filePath)
-		if err != nil {
-			return errors.Wrapf(err, "getting attributes for '%s'", filePath)
-		}
-		r.size = attrs.Size
-	}
-	ra, err := bucketReader.ReaderAt(ctx, filePath)
-	if err != nil {
-		return errors.Wrapf(err, "create reader '%s'", filePath)
-	}
-	ra = parquetobj.NewOptimizedReader(ra)
-
-	r.reader = ra
-
-	// first try to open file, this is required otherwise OpenFile panics
-	parquetFile, err := parquet.OpenFile(ra, r.size, parquet.SkipPageIndex(true), parquet.SkipBloomFilters(true))
-	if err != nil {
-		return errors.Wrapf(err, "opening parquet file '%s'", filePath)
-	}
-	if parquetFile.NumRows() == 0 {
-		return fmt.Errorf("error parquet file '%s' contains no rows", filePath)
-	}
-	opts := []parquet.FileOption{
-		parquet.SkipBloomFilters(true), // we don't use bloom filters
-		parquet.FileReadMode(parquet.ReadModeAsync),
-		parquet.ReadBufferSize(parquetReadBufferSize),
-	}
-	// now open it for real
-	r.file, err = parquet.OpenFile(ra, r.size, opts...)
-	if err != nil {
-		return errors.Wrapf(err, "opening parquet file '%s'", filePath)
-	}
-
-	// read all rows into memory
-	r.cache = make([]M, r.file.NumRows())
-	var offset int64
-	for _, rg := range r.file.RowGroups() {
-		rows := rg.NumRows()
-		dst := r.cache[offset : offset+rows]
-		offset += rows
-		if err = r.readRG(dst, rg); err != nil {
-			return errors.Wrapf(err, "reading row group from parquet file '%s'", filePath)
-		}
-	}
-	err = r.reader.Close()
-	r.reader = nil
-	r.file = nil
-	return err
-}
-
-// parquet.CopyRows uses hardcoded buffer size:
-// defaultRowBufferSize = 42
-const inMemoryReaderRowsBufSize = 1 << 10
-
-func (r *inMemoryparquetReader[M, P]) readRG(dst []M, rg parquet.RowGroup) (err error) {
-	rr := parquet.NewRowGroupReader(rg)
-	defer runutil.CloseWithLogOnErr(util.Logger, rr, "closing parquet row group reader")
-	buf := make([]parquet.Row, inMemoryReaderRowsBufSize)
-	for i := 0; i < len(dst); {
-		n, err := rr.ReadRows(buf)
-		if n > 0 {
-			for _, row := range buf[:n] {
-				_, v, err := r.persister.Reconstruct(row)
-				if err != nil {
-					return err
-				}
-				dst[i] = v
-				i++
-			}
-		}
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return nil
-			}
-			return err
-		}
-	}
-	return nil
-}
-
-func (r *inMemoryparquetReader[M, P]) Close() error {
-	if r.reader != nil {
-		return r.reader.Close()
-	}
-	r.reader = nil
-	r.file = nil
-	r.cache = nil
-	return nil
-}
-
-func (r *inMemoryparquetReader[M, P]) relPath() string {
-	return r.persister.Name() + block.ParquetSuffix
-}
-
-func (r *inMemoryparquetReader[M, P]) retrieveRows(_ context.Context, rowNumIterator iter.Iterator[int64]) iter.Iterator[ResultWithRowNum[M]] {
-	return &cacheIterator[M]{
-		cache:          r.cache,
-		rowNumIterator: rowNumIterator,
-	}
-}
-
-type cacheIterator[M any] struct {
-	cache          []M
-	rowNumIterator iter.Iterator[int64]
-}
-
-func (c *cacheIterator[M]) Next() bool {
-	if !c.rowNumIterator.Next() {
-		return false
-	}
-	if c.rowNumIterator.At() >= int64(len(c.cache)) {
-		return false
-	}
-	return true
-}
-
-func (c *cacheIterator[M]) At() ResultWithRowNum[M] {
-	return ResultWithRowNum[M]{
-		Result: c.cache[c.rowNumIterator.At()],
-		RowNum: c.rowNumIterator.At(),
-	}
-}
-
-func (c *cacheIterator[M]) Err() error {
-	return nil
-}
-
-func (c *cacheIterator[M]) Close() error {
-	return nil
 }

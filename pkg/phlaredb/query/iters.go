@@ -898,7 +898,7 @@ func NewSyncIterator(ctx context.Context, rgs []parquet.RowGroup, column int, co
 		table:      strings.ToLower(rgs[0].Schema().Name()) + "s",
 		ctx:        ctx,
 		cancel:     cancel,
-		metrics:    getMetricsFromContext(ctx),
+		metrics:    GetMetricsFromContext(ctx),
 		span:       span,
 		column:     column,
 		columnName: columnName,

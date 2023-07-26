@@ -7,6 +7,7 @@ import (
 
 	schemav1 "github.com/grafana/pyroscope/pkg/phlaredb/schemas/v1"
 	"github.com/grafana/pyroscope/pkg/phlaredb/symdb"
+	"github.com/grafana/pyroscope/pkg/phlaredb/symdb/v1"
 )
 
 // TODO(kolesnikovae): Refactor to symdb.
@@ -26,10 +27,10 @@ type SymbolsAppender interface {
 type symbolsWriter struct {
 	partitions map[uint64]*symbolsAppender
 
-	locations deduplicatingSlice[*schemav1.InMemoryLocation, locationsKey, *locationsHelper, *schemav1.LocationPersister]
-	mappings  deduplicatingSlice[*schemav1.InMemoryMapping, mappingsKey, *mappingsHelper, *schemav1.MappingPersister]
-	functions deduplicatingSlice[*schemav1.InMemoryFunction, functionsKey, *functionsHelper, *schemav1.FunctionPersister]
-	strings   deduplicatingSlice[string, string, *stringsHelper, *schemav1.StringPersister]
+	locations v1.deduplicatingSlice[*schemav1.InMemoryLocation, v1.locationsKey, *v1.locationsHelper, *schemav1.LocationPersister]
+	mappings  v1.deduplicatingSlice[*schemav1.InMemoryMapping, v1.mappingsKey, *v1.mappingsHelper, *schemav1.MappingPersister]
+	functions v1.deduplicatingSlice[*schemav1.InMemoryFunction, v1.functionsKey, *v1.functionsHelper, *schemav1.FunctionPersister]
+	strings   v1.deduplicatingSlice[string, string, *v1.stringsHelper, *schemav1.StringPersister]
 	tables    []Table
 
 	symdb *symdb.SymDB

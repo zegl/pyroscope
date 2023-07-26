@@ -57,7 +57,7 @@ func TestComputeDelta(t *testing.T) {
 
 func newProfileSchema(p *profilev1.Profile, name string) ([]schemav1.InMemoryProfile, []phlaremodel.Labels) {
 	var (
-		labels, seriesRefs = labelsForProfile(p, &typesv1.LabelPair{Name: model.MetricNameLabel, Value: name})
+		labels, seriesRefs = phlaremodel.LabelsForProfile(p, &typesv1.LabelPair{Name: model.MetricNameLabel, Value: name})
 		ps                 = make([]schemav1.InMemoryProfile, len(labels))
 	)
 	for idxType := range labels {

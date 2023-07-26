@@ -36,7 +36,6 @@ type profileStore struct {
 
 	path      string
 	persister schemav1.Persister[*schemav1.Profile]
-	helper    storeHelper[*schemav1.InMemoryProfile]
 	writer    *parquet.GenericWriter[*schemav1.Profile]
 
 	// lock serializes appends to the slice. Every new profile is appended
@@ -76,7 +75,6 @@ func newProfileStore(phlarectx context.Context) *profileStore {
 		logger:     phlarecontext.Logger(phlarectx),
 		metrics:    contextHeadMetrics(phlarectx),
 		persister:  &schemav1.ProfilePersister{},
-		helper:     &profilesHelper{},
 		flushing:   atomic.NewBool(false),
 		flushQueue: make(chan int),
 	}
@@ -209,20 +207,9 @@ func (s *profileStore) prepareFile(path string) (f *os.File, err error) {
 	return file, err
 }
 
-// cutRowGroups gets called, when a patrticular row group has been finished
+// cutRowGroups gets called, when a particular row group has been finished,
 // and it will flush it to disk. The caller of cutRowGroups should be holding
 // the write lock.
-//
-// Writes are not allowed during cutting the rows, but readers are not blocked
-// during the most of the time: only after the rows are written to disk do we
-// block them for a short time (via rowsLock).
-//
-// TODO(kolesnikovae): Make the lock more selective. The call takes long time,
-// if disk I/O is slow, which causes ingestion timeouts and impacts distributor
-// push latency, and memory consumption, transitively.
-// See index.cutRowGroup: we could find a way to not flush all the in-memory
-// profiles, including ones added since the start of the call, but only those
-// that were added before certain point (this call). The same for s.slice.
 func (s *profileStore) cutRowGroup(count int) (err error) {
 	// if cutRowGroup fails record it as failed segment
 	defer func() {
@@ -287,7 +274,7 @@ func (s *profileStore) cutRowGroup(count int) (err error) {
 		s.metrics.samples.Sub(float64(len(s.slice[i].Samples.StacktraceIDs)))
 	}
 	// reset slice and metrics
-	s.slice = copySlice(s.slice[count:])
+	s.slice = append(s.slice, s.slice[count:]...)
 	currentSize := s.size.Sub(size)
 	if err != nil {
 		return err
@@ -357,7 +344,7 @@ func (s *profileStore) loadProfilesToFlush(count int) uint64 {
 	sort.Sort(byLabels{p: s.flushBuffer, lbs: s.flushBufferLbs})
 	var size uint64
 	for _, p := range s.flushBuffer {
-		size += s.helper.size(&p)
+		size += p.Size()
 	}
 	return size
 }
@@ -383,14 +370,7 @@ func (s *profileStore) writeRowGroups(path string, rowGroups []parquet.RowGroup)
 	return n, numRowGroups, nil
 }
 
-func (s *profileStore) ingest(_ context.Context, profiles []schemav1.InMemoryProfile, lbs phlaremodel.Labels, profileName string, rewriter *rewriter) error {
-	// rewrite elements
-	for pos := range profiles {
-		if err := s.helper.rewrite(rewriter, &profiles[pos]); err != nil {
-			return err
-		}
-	}
-
+func (s *profileStore) ingest(_ context.Context, profiles []schemav1.InMemoryProfile, lbs phlaremodel.Labels, profileName string) error {
 	s.profilesLock.Lock()
 	defer s.profilesLock.Unlock()
 
@@ -408,7 +388,7 @@ func (s *profileStore) ingest(_ context.Context, profiles []schemav1.InMemoryPro
 		s.index.Add(&p, lbs, profileName)
 
 		// increase size of stored data
-		addedBytes := s.helper.size(&profiles[pos])
+		addedBytes := profiles[pos].Size()
 		s.metrics.sizeBytes.WithLabelValues(s.Name()).Set(float64(s.size.Add(addedBytes)))
 		s.totalSize.Add(addedBytes)
 
