@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"sync"
 
 	"github.com/google/pprof/profile"
@@ -268,12 +269,19 @@ func skipDuplicates(ctx context.Context, its []MergeIterator) error {
 	return errors.Err()
 }
 
+type replicaResponseByAddr[T any] []ResponseFromReplica[T]
+
+func (s replicaResponseByAddr[T]) Len() int           { return len(s) }
+func (s replicaResponseByAddr[T]) Less(i, j int) bool { return s[i].addr < s[j].addr }
+func (s replicaResponseByAddr[T]) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+
 // selectMergeTree selects the  profile from each ingester by deduping them and
 // returns merge of stacktrace samples represented as a tree.
 func selectMergeTree(ctx context.Context, responses []ResponseFromReplica[clientpool.BidiClientMergeProfilesStacktraces]) (*phlaremodel.Tree, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "selectMergeTree")
 	defer span.Finish()
 
+	sort.Stable(replicaResponseByAddr[clientpool.BidiClientMergeProfilesStacktraces](responses))
 	mergeResults := make([]MergeResult[*ingestv1.MergeProfilesStacktracesResult], len(responses))
 	iters := make([]MergeIterator, len(responses))
 	var wg sync.WaitGroup
