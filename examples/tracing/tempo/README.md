@@ -14,11 +14,8 @@ Pyroscope and Tempo datasources are provisioned automatically.
 The project can be run locally with the following commands:
 
 ```shell
-GOOS=linux GOARCH=amd64 make build -C ../../..
 docker-compose up --build
 ```
-
-Pyroscope and the demo application will be built from the current branch.  After the release, this will be changed so that the latest Pyroscope docker image is pulled from the Grafana repo.
 
 ### Querying the new API manually
 

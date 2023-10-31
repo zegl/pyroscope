@@ -63,6 +63,7 @@ services:
       - "9411:9411"   # zipkin
 
   pyroscope:
+    image: grafana/pyroscope:weekly-f38-568f33db
     ports:
       - '4040:4040'
     environment:
@@ -72,6 +73,3 @@ services:
     volumes:
       - ./pyroscope/pyroscope.yml:/etc/pyroscope.yml
     command: [ "-config.file=/etc/pyroscope.yml" ]
-    build:
-      context: '../../../'
-      dockerfile: cmd/pyroscope/Dockerfile
