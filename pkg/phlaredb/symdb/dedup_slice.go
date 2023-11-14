@@ -163,22 +163,32 @@ func copySlice[T any](in []T) []T {
 	return out
 }
 
-type idConversionTable map[int64]int64
+type conversionTable interface {
+	rewrite(idx *int64)
+	rewriteUint64(idx *uint64)
+	rewriteUint32(idx *uint32)
+	keys(fn func(k int64))
+	entries(fn func(k int64, v int64))
+}
+
+type idConversionTable struct {
+	table map[int64]int64
+}
 
 // nolint unused
-func (t idConversionTable) rewrite(idx *int64) {
+func (t *idConversionTable) rewrite(idx *int64) {
 	pos := *idx
 	var ok bool
-	*idx, ok = t[pos]
+	*idx, ok = t.table[pos]
 	if !ok {
 		panic(fmt.Sprintf("unable to rewrite index %d", pos))
 	}
 }
 
 // nolint unused
-func (t idConversionTable) rewriteUint64(idx *uint64) {
+func (t *idConversionTable) rewriteUint64(idx *uint64) {
 	pos := *idx
-	v, ok := t[int64(pos)]
+	v, ok := t.table[int64(pos)]
 	if !ok {
 		panic(fmt.Sprintf("unable to rewrite index %d", pos))
 	}
@@ -186,13 +196,25 @@ func (t idConversionTable) rewriteUint64(idx *uint64) {
 }
 
 // nolint unused
-func (t idConversionTable) rewriteUint32(idx *uint32) {
+func (t *idConversionTable) rewriteUint32(idx *uint32) {
 	pos := *idx
-	v, ok := t[int64(pos)]
+	v, ok := t.table[int64(pos)]
 	if !ok {
 		panic(fmt.Sprintf("unable to rewrite index %d", pos))
 	}
 	*idx = uint32(v)
+}
+
+func (s *idConversionTable) keys(fn func(k int64)) {
+	for key := range s.table {
+		fn(key)
+	}
+}
+
+func (s *idConversionTable) entries(fn func(k int64, v int64)) {
+	for key, value := range s.table {
+		fn(key, value)
+	}
 }
 
 func emptyRewriter() *rewriter {
@@ -205,11 +227,11 @@ func emptyRewriter() *rewriter {
 type rewriter struct {
 	strings stringConversionTable
 	// nolint unused
-	functions idConversionTable
+	functions conversionTable
 	// nolint unused
-	mappings idConversionTable
+	mappings conversionTable
 	// nolint unused
-	locations idConversionTable
+	locations conversionTable
 }
 
 type storeHelper[M schemav1.Models] interface {
@@ -228,7 +250,7 @@ type storeHelper[M schemav1.Models] interface {
 type Helper[M schemav1.Models, K comparable] interface {
 	storeHelper[M]
 	key(M) K
-	addToRewriter(*rewriter, idConversionTable)
+	addToRewriter(*rewriter, conversionTable)
 }
 
 type deduplicatingSlice[M schemav1.Models, K comparable, H Helper[M, K]] struct {
@@ -299,10 +321,10 @@ func (s *deduplicatingSlice[M, K, H]) ingest(elems []M, rewriter *rewriter) {
 	}
 
 	// nolint staticcheck
-	int64SlicePool.Put(missing)
+	int64SlicePool.Put(missing[:0])
 
 	// add rewrite information to struct
-	s.helper.addToRewriter(rewriter, rewritingMap)
+	s.helper.addToRewriter(rewriter, &idConversionTable{table: rewritingMap})
 }
 
 func (s *deduplicatingSlice[M, K, H]) append(dst []uint32, elems []M) {
@@ -366,18 +388,18 @@ func (*stringsHelper) key(s string) string {
 	return s
 }
 
-func (*stringsHelper) addToRewriter(r *rewriter, m idConversionTable) {
+func (*stringsHelper) addToRewriter(r *rewriter, m conversionTable) {
 	var maxID int64
-	for id := range m {
-		if id > maxID {
-			maxID = id
+	m.keys(func(k int64) {
+		if k > maxID {
+			maxID = k
 		}
-	}
-	r.strings = make(stringConversionTable, maxID+1)
+	})
 
-	for x, y := range m {
-		r.strings[x] = y
-	}
+	r.strings = make(stringConversionTable, maxID+1)
+	m.entries(func(k, v int64) {
+		r.strings[k] = v
+	})
 }
 
 // nolint unused
@@ -444,7 +466,7 @@ func hashLocations(s []uint64) uint64 {
 	return maphash.Bytes(mapHashSeed, b)
 }
 
-func (*locationsHelper) addToRewriter(r *rewriter, elemRewriter idConversionTable) {
+func (*locationsHelper) addToRewriter(r *rewriter, elemRewriter conversionTable) {
 	r.locations = elemRewriter
 }
 
@@ -506,7 +528,7 @@ func (*mappingsHelper) key(m *schemav1.InMemoryMapping) mappingsKey {
 	}
 }
 
-func (*mappingsHelper) addToRewriter(r *rewriter, elemRewriter idConversionTable) {
+func (*mappingsHelper) addToRewriter(r *rewriter, elemRewriter conversionTable) {
 	r.mappings = elemRewriter
 }
 
@@ -552,7 +574,7 @@ func (*functionsHelper) key(f *schemav1.InMemoryFunction) functionsKey {
 	}
 }
 
-func (*functionsHelper) addToRewriter(r *rewriter, elemRewriter idConversionTable) {
+func (*functionsHelper) addToRewriter(r *rewriter, elemRewriter conversionTable) {
 	r.functions = elemRewriter
 }
 
