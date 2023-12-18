@@ -12,10 +12,11 @@ type PartitionWriter struct {
 	header PartitionHeader
 
 	stacktraces *stacktracesPartition
-	strings     deduplicatingSlice[string, string, *stringsHelper]
-	mappings    deduplicatingSlice[*schemav1.InMemoryMapping, mappingsKey, *mappingsHelper]
-	functions   deduplicatingSlice[*schemav1.InMemoryFunction, functionsKey, *functionsHelper]
-	locations   deduplicatingSlice[*schemav1.InMemoryLocation, locationsKey, *locationsHelper]
+	strings     stringsTable
+	// strings   deduplicatingSlice[string, string, *stringsHelper]
+	mappings  deduplicatingSlice[*schemav1.InMemoryMapping, mappingsKey, *mappingsHelper]
+	functions deduplicatingSlice[*schemav1.InMemoryFunction, functionsKey, *functionsHelper]
+	locations deduplicatingSlice[*schemav1.InMemoryLocation, locationsKey, *locationsHelper]
 }
 
 func (p *PartitionWriter) AppendStacktraces(dst []uint32, s []*schemav1.Stacktrace) {

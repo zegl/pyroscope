@@ -166,3 +166,24 @@ func Test_Stats(t *testing.T) {
 	}
 	require.Equal(t, expected, actual)
 }
+
+func BenchmarkSymDB_WriteProfileSymbols(b *testing.B) {
+	pp, err := pprof.OpenFile("testdata/profile.pb.gz")
+	require.NoError(b, err)
+
+	db := NewSymDB(&Config{
+		Dir: b.TempDir(),
+		Stacktraces: StacktracesConfig{
+			MaxNodesPerChunk: 1 << 10,
+		},
+		Parquet: ParquetConfig{
+			MaxBufferRowCount: 512,
+		},
+	})
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		db.PartitionWriter(0).WriteProfileSymbols(pp.Profile.CloneVT())
+	}
+}

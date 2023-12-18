@@ -37,6 +37,7 @@ func (p *PartitionWriter) WriteProfileSymbols(profile *profilev1.Profile) []sche
 	pprof.ZeroLabelStrings(profile)
 
 	p.strings.ingest(profile.StringTable, rewrites)
+
 	mappings := make([]*schemav1.InMemoryMapping, len(profile.Mapping))
 	for i, v := range profile.Mapping {
 		mappings[i] = &schemav1.InMemoryMapping{
